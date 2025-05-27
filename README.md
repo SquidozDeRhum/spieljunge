@@ -1,4 +1,4 @@
-#Spieljunge
+# Spieljunge
 
 Spieljunge, literally 'Game Boy' in German is a Game Boy emulator which I develop from scratch.
 
