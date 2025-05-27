@@ -130,13 +130,11 @@ void LD_ADHL_8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L) {
 }
 
 void INC_R8(uint16_t& PC, uint8_t& R, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F &= 0b00011111; // unset zero, negative and half-carry flags
 
     // half-carry flag check
     if ((R & 0x0F) == 0x0F) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     R++;
@@ -144,8 +142,6 @@ void INC_R8(uint16_t& PC, uint8_t& R, uint8_t& F) {
     // zero flag check
     if (R == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
@@ -162,15 +158,13 @@ void INC_R16(uint16_t& PC, uint8_t& R1, uint8_t& R2) {
 }
 
 void INC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F &= 0b00011111; // unset zero, negative and half-carry flags
 
     uint16_t combination = (H << 8) | L;
 
     // half-carry flag check
     if ((RAM[combination] & 0x0F) == 0x0F) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     RAM[combination]++;
@@ -178,8 +172,6 @@ void INC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
     // zero flag check
     if (RAM[combination] == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
@@ -187,12 +179,11 @@ void INC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
 
 void DEC_R8(uint16_t& PC, uint8_t& R, uint8_t& F) {
     F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset zero and half-carry flags
 
     // half-carry flag check
     if ((R & 0x0F) == 0) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     R--;
@@ -200,8 +191,6 @@ void DEC_R8(uint16_t& PC, uint8_t& R, uint8_t& F) {
     // zero flag check
     if (R == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
     
     PC++;
@@ -218,15 +207,14 @@ void DEC_R16(uint16_t& PC, uint8_t& R1, uint8_t& R2) {
 }
 
 void DEC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset zero and half-carry flags
 
     uint16_t combination = (H << 8) | L;
 
     // half-carry flag check
     if ((RAM[combination] & 0x0F) == 0) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     RAM[combination]--;
@@ -234,28 +222,22 @@ void DEC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
     // zero flag check
     if (RAM[combination] == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
 }
 
 void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F &= 0b00001111; // unset flags
 
     // half-carry flag check
     if ((R1 & 0xF) + (R2 & 0xF) > 0xF) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 + R2 > 0xFF) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 += R2;
@@ -263,30 +245,24 @@ void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
 }
 
 void ADD_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F &= 0b00001111; // unset flags
 
     uint16_t HL = (H << 8) | L;
 
     // half-carry flag check
     if ((R1 & 0xF) + (RAM[HL] & 0xF) > 0xF) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 + RAM[HL] > 0xFF) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 += RAM[HL];
@@ -294,15 +270,13 @@ void ADD_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
 }
 
 void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t R22, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F &= 0b10001111; // unset negative, half-carry and carry flags
 
     uint16_t combinationR1 = (R11 << 8) | R12;
     uint16_t combinationR2 = (R21 << 8) | R22;
@@ -310,15 +284,11 @@ void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t 
     // half-carry check
     if ((combinationR1 & 0xFFF) + (combinationR2 & 0xFFF) > 0xFFF) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (combinationR1 + combinationR2 > 0xFFFF) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     combinationR1 += combinationR2;
@@ -330,7 +300,7 @@ void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t 
 
 
 void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F &= 0b00001111; // unset flags
     int carry = 0;
 
     if ((F & 0b00010000) != 0) {
@@ -340,15 +310,11 @@ void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     // half-carry flag check
     if ((R1 & 0xF) + (R2 & 0xF) + carry > 0xF) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 + R2 + carry > 0xFF) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 += R2 + carry;
@@ -356,15 +322,13 @@ void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
 }
 
 void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F &= 0b10111111; // unset negative flag
+    F &= 0b00001111; // unset flags
     int carry = 0;
 
     if ((F & 0b00010000) != 0) {
@@ -376,15 +340,11 @@ void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
     // half-carry flag check
     if ((R1 & 0xF) + (RAM[HL] & 0xF) + carry > 0xF) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 + RAM[HL] + carry > 0xFF) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 += RAM[HL];
@@ -392,8 +352,6 @@ void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
@@ -401,19 +359,16 @@ void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 
 void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset other flags
 
     // half-carry flag check
     if ((R1 & 0xF) - (R2 & 0xF) < 0) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 - R2 < 0) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 -= R2;
@@ -421,8 +376,6 @@ void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
@@ -430,21 +383,18 @@ void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 
 void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
     F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset other flags
 
     uint16_t HL = (H << 8) | L;
 
     // half-carry flag check
     if ((R1 & 0xF) - (RAM[HL] & 0xF) < 0) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 - RAM[HL] < 0) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 -= RAM[HL];
@@ -452,8 +402,6 @@ void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
@@ -461,6 +409,7 @@ void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 
 void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset other flags
 
     int carry = 0;
 
@@ -471,15 +420,11 @@ void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     // half-carry flag check
     if ((R1 & 0xF) - (R2 & 0xF) - carry < 0) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 - R2 - carry < 0) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 -= (R2 + carry);
@@ -487,8 +432,6 @@ void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
@@ -496,6 +439,7 @@ void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 
 void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
     F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset other flags
 
     int carry = 0;
 
@@ -508,15 +452,11 @@ void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
     // half-carry flag check
     if ((R1 & 0xF) - (RAM[HL] & 0xF) - carry < 0) {
         F |= 0b00100000;
-    } else {
-        F &= 0b11011111;
     }
 
     // carry flag check
     if (R1 - RAM[HL] - carry < 0) {
         F |= 0b00010000;
-    } else {
-        F &= 0b11101111;
     }
 
     R1 -= (RAM[HL] + carry);
@@ -524,8 +464,6 @@ void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
     // zero flag check
     if (R1 == 0) {
         F |= 0b10000000;
-    } else {
-        F &= 0b01111111;
     }
 
     PC++;
