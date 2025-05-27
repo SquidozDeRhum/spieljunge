@@ -34,14 +34,14 @@ void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void ADD_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t R22, uint8_t& F);
 
-// stands for ADD with Carry
+// stands for ADD with carry
 void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 
 void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
-void SUB_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t R22, uint8_t& F);
 
+// stands for SUB with carry
 void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 

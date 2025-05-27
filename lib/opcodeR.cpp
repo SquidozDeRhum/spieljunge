@@ -400,7 +400,133 @@ void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 }
 
 void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F |= 0b01000000;
+    F |= 0b01000000; // set negative flag
 
-    
+    // half-carry flag check
+    if ((R1 & 0xF) - (R2 & 0xF) < 0) {
+        F |= 0b00100000;
+    } else {
+        F &= 0b11011111;
+    }
+
+    // carry flag check
+    if (R1 - R2 < 0) {
+        F |= 0b00010000;
+    } else {
+        F &= 0b11101111;
+    }
+
+    R1 -= R2;
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    } else {
+        F &= 0b01111111;
+    }
+
+    PC++;
+}
+
+void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
+    F |= 0b01000000; // set negative flag
+
+    uint16_t HL = (H << 8) | L;
+
+    // half-carry flag check
+    if ((R1 & 0xF) - (RAM[HL] & 0xF) < 0) {
+        F |= 0b00100000;
+    } else {
+        F &= 0b11011111;
+    }
+
+    // carry flag check
+    if (R1 - RAM[HL] < 0) {
+        F |= 0b00010000;
+    } else {
+        F &= 0b11101111;
+    }
+
+    R1 -= RAM[HL];
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    } else {
+        F &= 0b01111111;
+    }
+
+    PC++;
+}
+
+void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+    F |= 0b01000000; // set negative flag
+
+    int carry = 0;
+
+    if ((F & 0b00010000) != 0) {
+        carry = 1;
+    }
+
+    // half-carry flag check
+    if ((R1 & 0xF) - (R2 & 0xF) - carry < 0) {
+        F |= 0b00100000;
+    } else {
+        F &= 0b11011111;
+    }
+
+    // carry flag check
+    if (R1 - R2 - carry < 0) {
+        F |= 0b00010000;
+    } else {
+        F &= 0b11101111;
+    }
+
+    R1 -= (R2 + carry);
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    } else {
+        F &= 0b01111111;
+    }
+
+    PC++;
+}
+
+void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
+    F |= 0b01000000; // set negative flag
+
+    int carry = 0;
+
+    if ((F & 0b00010000) != 0) {
+        carry = 1;
+    }
+
+    uint16_t HL = (H << 8) | L;
+
+    // half-carry flag check
+    if ((R1 & 0xF) - (RAM[HL] & 0xF) - carry < 0) {
+        F |= 0b00100000;
+    } else {
+        F &= 0b11011111;
+    }
+
+    // carry flag check
+    if (R1 - RAM[HL] - carry < 0) {
+        F |= 0b00010000;
+    } else {
+        F &= 0b11101111;
+    }
+
+    R1 -= (RAM[HL] + carry);
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    } else {
+        F &= 0b01111111;
+    }
+
+    PC++;
 }
