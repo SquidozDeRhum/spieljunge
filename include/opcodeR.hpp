@@ -46,16 +46,16 @@ void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 
 void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
-void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void AND_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 
-void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
-void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
+void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 
-void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
-void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
+void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 
-void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
-void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
+void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 
 void RLC_R(uint16_t& PC, uint8_t& R, uint8_t& F);
 void RRC_R(uint16_t& PC, uint8_t& R, uint8_t& F);

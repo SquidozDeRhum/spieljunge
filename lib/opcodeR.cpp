@@ -468,3 +468,135 @@ void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 
     PC++;
 }
+
+void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+    F |= 0b00100000; // set half-carry flag
+    F &= 0b00100000; // unset zero, negative and carry flags
+
+    R1 &= R2;
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
+
+void AND_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F) {
+    F |= 0b00100000; // set half-carry flag
+    F &= 0b00100000; // unset zero, negative and carry flags
+
+    uint16_t HL = (H << 8) | L;
+
+    R1 &= RAM[HL];
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
+
+void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+    F &= 0x00; // unset flags
+    
+    R1 ^= R2;
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
+
+void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F) {
+    F &= 0x00; // unset flags
+
+    uint16_t HL = (H << 8) | L;
+
+    R1 ^= RAM[HL];
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
+
+void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+    F &= 0x00; // unset flags
+
+    R1 |= R2;
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
+
+void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F) {
+    F &= 0x00; // unset flags
+
+    uint16_t HL = (H << 8) | L;
+
+    R1 |= RAM[HL];
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
+
+void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+    F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset other flags
+
+    // half-carry flag check
+    if ((R1 & 0xF) - (R2 & 0xF) < 0) {
+        F |= 0b00100000;
+    }
+
+    // carry flag check
+    if (R1 - R2 < 0) {
+        F |= 0b00010000;
+    }
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
+
+void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
+    F |= 0b01000000; // set negative flag
+    F &= 0b01000000; // unset other flags
+
+    uint16_t HL = (H << 8) | L;
+
+    // half-carry flag check
+    if ((R1 & 0xF) - (RAM[HL] & 0xF) < 0) {
+        F |= 0b00100000;
+    }
+
+    // carry flag check
+    if (R1 - RAM[HL] < 0) {
+        F |= 0b00010000;
+    }
+
+    // zero flag check
+    if (R1 == 0) {
+        F |= 0b10000000;
+    }
+
+    PC++;
+}
