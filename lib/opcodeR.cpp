@@ -273,23 +273,23 @@ void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 void ADD_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
     F &= 0b10111111; // unset negative flag
 
-    PC++;
+    uint16_t HL = (H << 8) | L;
 
     // half-carry flag check
-    if ((R1 & 0xF) + (RAM[PC] & 0xF) > 0xF) {
+    if ((R1 & 0xF) + (RAM[HL] & 0xF) > 0xF) {
         F |= 0b00100000;
     } else {
         F &= 0b11011111;
     }
 
     // carry flag check
-    if (R1 + RAM[PC] > 0xFF) {
+    if (R1 + RAM[HL] > 0xFF) {
         F |= 0b00010000;
     } else {
         F &= 0b11101111;
     }
 
-    R1 += RAM[PC];
+    R1 += RAM[HL];
 
     // zero flag check
     if (R1 == 0) {
@@ -371,23 +371,23 @@ void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
         carry = 1;
     }
 
-    PC++;
+    uint16_t HL = (H << 8) | L;
 
     // half-carry flag check
-    if ((R1 & 0xF) + (RAM[PC] & 0xF) + carry > 0xF) {
+    if ((R1 & 0xF) + (RAM[HL] & 0xF) + carry > 0xF) {
         F |= 0b00100000;
     } else {
         F &= 0b11011111;
     }
 
     // carry flag check
-    if (R1 + RAM[PC] + carry > 0xFF) {
+    if (R1 + RAM[HL] + carry > 0xFF) {
         F |= 0b00010000;
     } else {
         F &= 0b11101111;
     }
 
-    R1 += RAM[PC];
+    R1 += RAM[HL];
 
     // zero flag check
     if (R1 == 0) {
