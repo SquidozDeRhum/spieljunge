@@ -600,3 +600,95 @@ void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, 
 
     PC++;
 }
+
+// The entire function is not optimized
+// A much better way should be found
+void RLC_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
+    F &= 0b00011111; // Unset zero negative and half-carry flags
+
+    if ((R & 0b10000000) != 0) {
+        F |= 0b00010000; // Set carry flag
+        R = (R << 1) | 0xFF;
+        R |= 0b00000001;
+    } else {
+        F &= 0b11101111;
+        R = (R << 1) | 0xFF;
+    }
+
+    PC ++;
+}
+
+void RRC_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
+    F &= 0b00011111; // Unset zero negative and half-carry flags
+
+    if ((R & 0b00000001) != 0) {
+        F |= 0b00010000; // Set carry flag
+        R = R >> 1;
+        R |= 0b10000000;
+    } else {
+        F &= 0b11101111;
+        R = R >> 1;
+    }
+
+    PC++;
+}
+
+void RL_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
+    F &= 0b00011111; // Unset zero negative and half-carry flags
+
+    bool mst = false;
+
+    if ((R & 0b10000000) != 0) {
+        mst = true;
+    }
+    
+    R = (R << 1) & 0xFF;
+    
+    // If carry flag is set
+    if ((F & 0b00010000) != 0) {
+        R |= 0b00000001;
+    }
+
+    // Put MST of A into carry
+    if (mst) {
+        F |= 0b00010000;
+    } else {
+        F &= 0b11101111;
+    }
+
+    PC++;
+}
+
+void RR_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
+    F &= 0b00011111; // Unset Zero negative and half-carry flags
+
+    bool lst = false;
+
+    if ((R & 0b00000001) != 0) {
+        lst = true;
+    }
+
+    R = (R >> 1) & 0xFF;
+
+    // If carry flag is set
+    if ((F & 0b00010000) != 0) {
+        R |= 0b10000000;
+    }
+
+    // Put MST of A into carry
+    if (lst) {
+        F |= 0b00010000;
+    } else {
+        F &= 0b11101111;
+    }
+
+    PC++;
+}
+
+void CPL(uint16_t& PC, uint8_t& R, uint8_t& F) {
+    F |= 0b01100000;
+
+    R ^= 0xFF;
+
+    PC++;
+}

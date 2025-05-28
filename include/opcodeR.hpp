@@ -62,7 +62,8 @@ void RRC_R(uint16_t& PC, uint8_t& R, uint8_t& F);
 void RL_R(uint16_t& PC, uint8_t& R, uint8_t& F);
 void RR_R(uint16_t& PC, uint8_t& R, uint8_t& F);
 
-void CPL(uint16_t& PC, uint8_t& A, uint8_t& F);
+void CPL(uint16_t& PC, uint8_t& R, uint8_t& F);
+
 void SCF(uint16_t& PC, uint8_t& F); // Stands for Set Carry Flag
 void CCF(uint16_t& PC, uint8_t& F); // Stands for Complement Carry Flag
 
