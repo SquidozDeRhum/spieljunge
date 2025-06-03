@@ -692,3 +692,70 @@ void CPL(uint16_t& PC, uint8_t& R, uint8_t& F) {
 
     PC++;
 }
+
+void SCF(uint16_t& PC, uint8_t& F) {
+    F &= 0b10000000; // unset flags except zero
+    F |= 0b00010000; // set carry flag
+
+    PC++;
+}
+
+void CCF(uint16_t& PC, uint8_t& F) {
+    F &= 0b10000000; // unset flags except zero
+    F ^= 0b00010000; // set carry flag
+
+    PC++;
+}
+
+void JR_8(uint16_t& PC, std::vector<uint8_t>& RAM) {
+    PC++;
+    u_int8_t value = RAM[PC];
+
+    PC++;
+
+    PC += (signed char)value;
+}
+
+void JR_NZ_8(u_int16_t& PC, u_int8_t& F, std::vector<u_int8_t>& RAM) {
+    PC++;
+    u_int8_t value = RAM[PC];
+
+    PC++;
+
+    if ((F & 0b10000000) == 0) {
+        PC += (signed char)value;
+    }
+}
+
+void JR_Z_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
+    PC++;
+    u_int8_t value = RAM[PC];
+
+    PC++;
+
+    if ((F & 0b10000000) != 0) {
+        PC += (signed char)value;
+    }
+}
+
+void JR_NC_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
+    PC++;
+    u_int8_t value = RAM[PC];
+
+    PC++;
+
+    if ((F & 0b00010000) == 0) {
+        PC += (signed char)value;
+    }
+}
+
+void JR_C_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
+    PC++;
+    u_int8_t value = RAM[PC];
+
+    PC++;
+
+    if ((F & 0b00010000) != 0) {
+        PC += (signed char)value;
+    }
+}

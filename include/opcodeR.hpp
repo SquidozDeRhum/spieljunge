@@ -65,7 +65,7 @@ void RR_R(uint16_t& PC, uint8_t& R, uint8_t& F);
 void CPL(uint16_t& PC, uint8_t& R, uint8_t& F);
 
 void SCF(uint16_t& PC, uint8_t& F); // Stands for Set Carry Flag
-void CCF(uint16_t& PC, uint8_t& F); // Stands for Complement Carry Flag
+void CCF(uint16_t& PC, uint8_t& F); // Stands for Complement Carry Flag, it flips the carry flag
 
 void JR_8(uint16_t& PC, std::vector<uint8_t>& RAM);
 void JR_NZ_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
