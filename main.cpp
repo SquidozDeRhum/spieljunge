@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <bitset>
+#include <cstdint>
 
 #include "./include/tools.hpp"
 #include "./include/const.hpp"
@@ -10,7 +11,7 @@
 int main() {
 
     u_int8_t A;
-    u_int8_t F; // Utilisé pour les flags du processeur Z N H C
+    u_int8_t F; // used for Z N H C flags
     u_int8_t B;
     u_int8_t C;
     u_int8_t D;
@@ -27,10 +28,11 @@ int main() {
 
     // displayROM(RAM);
 
-    u_int8_t test = 0x12;
-    bool test2 = false;
+    uint8_t test = 0xFF;
 
-    std::cout << test + test2 << std::endl;
+    int8_t adjust = -0x66;
+
+    std::cout << ~test << std::endl;
 
     return EXIT_SUCCESS;
 }
