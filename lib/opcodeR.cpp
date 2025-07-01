@@ -1,5 +1,3 @@
-#pragma once
-
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -8,6 +6,7 @@
 
 #include "../include/opcodeR.hpp"
 #include "../include/const.hpp"
+#include "../include/tools.hpp"
 
 void NOP(uint16_t& PC) {
     std::cout << "Should sleep during one M-cycle" << std::endl;
@@ -643,10 +642,10 @@ void RL_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
     // unset zero negative and half-carry flags
     F &= ~(ZERO_FLAG | NEGATIVE_FLAG | HALF_CARRY_FLAG); 
 
-    bool mst = false;
+    bool msb = false;
 
     if ((R & 0b10000000) != 0) {
-        mst = true;
+        msb = true;
     }
     
     R = (R << 1) & 0xFF;
@@ -656,8 +655,8 @@ void RL_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
         R |= 0b00000001;
     }
 
-    // Put MST of A into carry
-    if (mst) {
+    // Put MSB of A into carry
+    if (msb) {
         F |= CARRY_FLAG;
     } else {
         F &= ~CARRY_FLAG;
@@ -683,7 +682,7 @@ void RR_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
         R |= 0b10000000;
     }
 
-    // Put MST of A into carry
+    // Put LSB of A into carry
     if (lst) {
         F |= CARRY_FLAG;
     } else {
@@ -772,35 +771,38 @@ void JR_C_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
 void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
     F &= ~ZERO_FLAG;
 
-    int8_t MSTadjust = 0x60;
-    int8_t LSTadjust = 0x06;
+    int8_t MSBadjust = 0x60;
+    int8_t LSBadjust = 0x06;
 
     uint8_t oldA = A;
 
-    if (F & NEGATIVE_FLAG != 0) {
-        MSTadjust = -MSTadjust;
-        LSTadjust = -LSTadjust;
+    bool setCarry = false;
+
+    if ((F & NEGATIVE_FLAG) != 0) {
+        MSBadjust = -MSBadjust;
+        LSBadjust = -LSBadjust;
     }
     
-    if (F & CARRY_FLAG != 0) {
-        A += MSTadjust;
+    if ((F & CARRY_FLAG) != 0) {
+        A += MSBadjust;
+        setCarry = true;
     }
     
-    if (F & HALF_CARRY_FLAG != 0) {
-        A += LSTadjust;
+    if ((F & HALF_CARRY_FLAG) != 0) {
+        A += LSBadjust;
     }
     
     for (int i = 0; i < NB_DAA_CHECK; i++) {
         if ((A & 0xF) > 0x9) {
-            A += LSTadjust;
+            A += LSBadjust;
         }
         
         if ((A & 0xF0) > 0x90) {
-            A += MSTadjust;
+            A += MSBadjust;
         }
     }
     
-    if (A < oldA) {
+    if (A < oldA || setCarry) {
         F |= CARRY_FLAG;
     } else {
         F &= ~CARRY_FLAG;
@@ -812,4 +814,63 @@ void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
     
     F &= ~HALF_CARRY_FLAG;
     PC++;
+}
+
+void RET_NZ(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t &SP, uint8_t F) {
+    if ((F & ZERO_FLAG) == 0) {
+        uint16_t adress = RAM[SP];
+        SP--;
+
+        adress |= (RAM[SP] << 8);
+        SP--;
+
+        PC = adress;
+    }
+}
+
+void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
+    R2 = RAM[SP];
+    SP--;
+
+    R1 = RAM[SP];
+    SP--;
+
+    PC++;
+}
+
+void JP_NZ_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t F) {
+    if ((F & ZERO_FLAG) == 0) {
+        PC++;
+        uint16_t adress = RAM[PC];
+
+        PC++;
+        adress |= (RAM[PC] << 8);
+
+        PC = adress;
+    }
+}
+
+void JP_16(uint16_t& PC, std::vector<uint8_t>& RAM) {
+    PC++;
+    uint16_t adress = RAM[PC];
+
+    PC++;
+    adress |= (RAM[PC] << 8);
+
+    PC = adress;
+}
+
+void CALL_NZ_16(uint16_t& PC, uint16_t& SP,std::vector<uint8_t>& RAM, uint8_t F) {
+    if ((F & ZERO_FLAG) == 0) {
+        RAM[SP] = PC + 3;
+        SP++;
+
+        PC++;
+        uint16_t adress = RAM[PC];
+
+        PC++;
+        adress |= (RAM[PC] << 8);
+
+        PC = adress;
+    }
 }

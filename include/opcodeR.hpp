@@ -73,16 +73,22 @@ void JR_Z_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
 void JR_NC_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
 void JR_C_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
 
+void JP_NZ_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t F);
+void JP_16(uint16_t& PC, std::vector<uint8_t>& RAM);
+
 void DAA(uint16_t& PC, uint8_t& A, uint8_t& F);
 
-// Goofy instructions
-
-void RET_NZ(uint16_t& PC);
-void POP_BC(uint16_t& PC);
-void JP_NZ_16(uint16_t& PC);
-void JP_16(uint16_t& PC);
-void CALL_NZ_16(uint16_t& PC);
+void PUSH_AF(uint16_t& PC);
 void PUSH_BC(uint16_t& PC);
+
+void CALL_NZ_16(uint16_t& PC, uint16_t& SP,std::vector<uint8_t>& RAM, uint8_t F);
+
+void RET_NZ(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F);
+
+void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2);
+
+// Goofy instructions (by that I mean I don't know what they do)
+
 void ADD_A_8(uint16_t& PC);
 void RST_00(uint16_t& PC);
 void RET_Z(uint16_t& PC);
@@ -94,10 +100,8 @@ void CALL_16(uint16_t& PC);
 void ADC_A_8(uint16_t& PC);
 void RST_08(uint16_t& PC);
 void RET_NC(uint16_t& PC);
-void POP_DE(uint16_t& PC);
 void JP_NC_16(uint16_t& PC);
 void CALL_NC_16(uint16_t& PC);
-void PUSH_DE(uint16_t& PC);
 void SUB_A_8(uint16_t& PC);
 void RST_10(uint16_t& PC);
 void RET_C(uint16_t& PC);
@@ -107,9 +111,7 @@ void CALL_C_16(uint16_t& PC);
 void SBC_A_8(uint16_t& PC);
 void RST_18(uint16_t& PC);
 void LDH_AD8_A(uint16_t& PC);
-void POP_HL(uint16_t& PC);
 void LDH_ADC_A(uint16_t& PC);
-void PUSH_HL(uint16_t& PC);
 void AND_A_8(uint16_t& PC);
 void RST_20(uint16_t& PC);
 void ADD_SP_8(uint16_t& PC);
@@ -118,10 +120,8 @@ void LD_AD16_A(uint16_t& PC);
 void XOR_A_8(uint16_t& PC);
 void RST_28(uint16_t& PC);
 void LDH_A_8(uint16_t& PC);
-void POP_AF(uint16_t& PC);
 void LDH_A_AD_C(uint16_t& PC);
 void DI(uint16_t& PC);
-void PUSH_AF(uint16_t& PC);
 void OR_A_8(uint16_t& PC);
 void RST_30(uint16_t& PC);
 void LD_HL_SP8(uint16_t& PC);

@@ -7,3 +7,4 @@
 
 void loadROM(std::vector<u_int8_t>& RAM, std::string filename);
 void displayROM(std::vector<u_int8_t>& RAM);
+void flagsOutput(uint8_t F);

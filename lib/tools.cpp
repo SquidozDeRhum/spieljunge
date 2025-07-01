@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include "../include/tools.hpp"
 #include "../include/const.hpp"
 
@@ -24,4 +26,8 @@ void displayROM(std::vector<u_int8_t>& RAM) {
     }
 
     std::cout << std::endl;
+}
+
+void flagsOutput(uint8_t F) {
+    std::cout << "Z : " << (F >> 7) << " N : " << ((F >> 6) & 0b1) << " H : " << ((F >> 5) & 0b1) << " C : " << ((F >> 4) & 0b1) << std::endl;
 }
