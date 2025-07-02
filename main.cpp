@@ -1,9 +1,10 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
 #include <vector>
 #include <string>
-#include <bitset>
 #include <cstdint>
+
 
 #include "./include/tools.hpp"
 #include "./include/const.hpp"
@@ -21,7 +22,7 @@ int main() {
     uint8_t H;
     uint8_t L;
 
-    uint16_t SP;
+    uint16_t SP = SP_START;
     uint16_t PC;
 
     std::vector<uint8_t> RAM = std::vector<uint8_t>(0xFFFF, 0x00);
@@ -30,15 +31,11 @@ int main() {
 
     // displayROM(RAM);
 
-    A = 0x10;
-    PC = 0;
-    F = 0b00010000;
+    uint16_t test = 0xF;
 
-    DAA(PC, A, F);
+    int8_t test2 = 0x1;
 
-    std::cout << std::hex << std::uppercase << (int)A << std::endl;
-
-    flagsOutput(F);
+    std::cout << std::hex << test + test2 << std::endl;
 
     return EXIT_SUCCESS;
 }

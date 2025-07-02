@@ -8,4 +8,6 @@
 #define HALF_CARRY_FLAG 0b00100000
 #define CARRY_FLAG 0b00010000
 
+#define SP_START 0xFFFE
+
 #define NB_DAA_CHECK 2
