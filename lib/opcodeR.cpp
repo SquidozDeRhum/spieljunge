@@ -493,8 +493,7 @@ void ADC_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
 }
 
 void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     // half-carry check
     if ((R1 & 0xF) - (R2 & 0xF) < 0) {
@@ -517,8 +516,7 @@ void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     uint16_t HL = (H << 8) | L;
 
@@ -543,8 +541,7 @@ void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 }
 
 void SUB_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     PC++;
 
@@ -568,8 +565,7 @@ void SUB_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
 }
 
 void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     int carry = 0;
 
@@ -598,8 +594,7 @@ void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative fla
 
     int carry = 0;
 
@@ -630,8 +625,7 @@ void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 }
 
 void SBC_A_8(uint16_t& PC, uint8_t&A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     int carry = 0;
 
@@ -662,8 +656,7 @@ void SBC_A_8(uint16_t& PC, uint8_t&A, std::vector<uint8_t>& RAM, uint8_t& F) {
 }
 
 void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F |= HALF_CARRY_FLAG; // set half-carry flag
-    F &= HALF_CARRY_FLAG; // unset zero, negative and carry flags
+    F = HALF_CARRY_FLAG; // set half-carry flag
 
     R1 &= R2;
 
@@ -676,8 +669,7 @@ void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void AND_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F) {
-    F |= HALF_CARRY_FLAG; // set half-carry flag
-    F &= HALF_CARRY_FLAG; // unset zero, negative and carry flags
+    F = HALF_CARRY_FLAG; // set half-carry flag
 
     uint16_t HL = (H << 8) | L;
 
@@ -692,8 +684,7 @@ void AND_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 }
 
 void AND_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F |= HALF_CARRY_FLAG; // set half-carry flag
-    F &= HALF_CARRY_FLAG; // unset other flags
+    F = HALF_CARRY_FLAG; // set half-carry flag
 
     PC++;
     A &= RAM[PC];
@@ -790,8 +781,7 @@ void OR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
 }
 
 void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     // half-carry check
     if ((R1 & 0xF) - (R2 & 0xF) < 0) {
@@ -812,8 +802,7 @@ void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     uint16_t HL = (H << 8) | L;
 
@@ -836,8 +825,7 @@ void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, 
 }
 
 void CP_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
-    F &= NEGATIVE_FLAG; // unset other flags
+    F = NEGATIVE_FLAG; // set negative flag
 
     PC++;
     uint8_t value = RAM[PC];
@@ -1025,7 +1013,7 @@ void JR_NC_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
 }
 
 void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
-    F &= ~ZERO_FLAG;
+    F &= ~();
 
     int8_t MSBadjust = 0x60;
     int8_t LSBadjust = 0x06;
@@ -1068,7 +1056,6 @@ void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
         F |= ZERO_FLAG;
     }
     
-    F &= ~HALF_CARRY_FLAG;
     PC++;
 }
 
