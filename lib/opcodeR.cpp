@@ -1013,7 +1013,8 @@ void JR_NC_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
 }
 
 void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
-    F &= ~();
+    // unset flags except negative
+    F &= ~(ZERO_FLAG | HALF_CARRY_FLAG | CARRY_FLAG);
 
     int8_t MSBadjust = 0x60;
     int8_t LSBadjust = 0x06;
