@@ -1062,10 +1062,10 @@ void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
 
 void RET(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
     uint16_t address = RAM[SP];
-    SP--;
+    SP++;
 
     address |= (RAM[SP] << 8);
-    SP--;
+    SP++;
 
     PC = address;
 }
@@ -1073,10 +1073,10 @@ void RET(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
 void RET_Z(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & ZERO_FLAG) == 1) {
         uint16_t address = RAM[SP];
-        SP--;
+        SP++;
 
         address |= (RAM[SP] << 8);
-        SP--;
+        SP++;
 
         PC = address;
     }
@@ -1085,10 +1085,10 @@ void RET_Z(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
 void RET_NZ(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t &SP, uint8_t F) {
     if ((F & ZERO_FLAG) == 0) {
         uint16_t address = RAM[SP];
-        SP--;
+        SP++;
 
         address |= (RAM[SP] << 8);
-        SP--;
+        SP++;
 
         PC = address;
     }
@@ -1097,10 +1097,10 @@ void RET_NZ(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t &SP, uint8_t F) {
 void RET_C(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & CARRY_FLAG) == 1) {
         uint16_t address = RAM[SP];
-        SP--;
+        SP++;
 
         address |= (RAM[SP] << 8);
-        SP--;
+        SP++;
 
         PC = address;
     }
@@ -1109,10 +1109,10 @@ void RET_C(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
 void RET_NC(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & CARRY_FLAG) == 0) {
         uint16_t address = RAM[SP];
-        SP--;
+        SP++;
 
         address |= (RAM[SP] << 8);
-        SP--;
+        SP++;
 
         PC = address;
     }
@@ -1122,12 +1122,22 @@ void RETI(uint16_t& PC) {
     std::cout << "Should return from interruption" << std::endl;
 }
 
-void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
-    R2 = RAM[SP];
+void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
+    RAM[SP] = R2;
     SP--;
 
-    R1 = RAM[SP];
+    RAM[SP] = R1;
     SP--;
+
+    PC++;
+}
+
+void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
+    R2 = RAM[SP];
+    SP++;
+
+    R1 = RAM[SP];
+    SP++;
 
     PC++;
 }

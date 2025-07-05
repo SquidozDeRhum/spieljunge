@@ -99,8 +99,6 @@ void JP_HL(uint16_t& PC, uint16_t HL);
 
 void DAA(uint16_t& PC, uint8_t& A, uint8_t& F);
 
-void PUSH_AF(uint16_t& PC);
-void PUSH_BC(uint16_t& PC);
 
 void RST_AD(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint16_t AD);
 
@@ -121,5 +119,6 @@ void EI(uint16_t& PC);
 void RETI(uint16_t& PC);
 
 void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2);
+void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2);
 
 void PREFIX(uint16_t& PC);
