@@ -74,10 +74,10 @@ void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 void CP_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM);
 
-void RLC_R(uint16_t& PC, uint8_t& R, uint8_t& F);
-void RRC_R(uint16_t& PC, uint8_t& R, uint8_t& F);
-void RL_R(uint16_t& PC, uint8_t& R, uint8_t& F);
-void RR_R(uint16_t& PC, uint8_t& R, uint8_t& F);
+void RLCA(uint16_t& PC, uint8_t& A, uint8_t& F);
+void RRCA(uint16_t& PC, uint8_t& A, uint8_t& F);
+void RLA(uint16_t& PC, uint8_t& A, uint8_t& F);
+void RRA(uint16_t& PC, uint8_t& A, uint8_t& F);
 
 void CPL(uint16_t& PC, uint8_t& R, uint8_t& F);
 

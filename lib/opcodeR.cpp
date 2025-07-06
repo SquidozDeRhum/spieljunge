@@ -130,7 +130,7 @@ void LD_ADHL_8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L) {
 }
 
 void LD_HL_SP8(uint16_t& PC, uint8_t& H, uint8_t& L, uint16_t SP, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     PC++;
     int8_t value = RAM[PC];
@@ -298,7 +298,7 @@ void DEC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
 }
 
 void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     // half-carry check
     if ((R1 & 0xF) + (R2 & 0xF) > 0xF) {
@@ -321,7 +321,7 @@ void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void ADD_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     uint16_t HL = (H << 8) | L;
 
@@ -370,7 +370,7 @@ void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t 
 }
 
 void ADD_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     PC++;
     uint8_t value = RAM[PC];
@@ -405,7 +405,7 @@ void ADD_SP_8(uint16_t& PC, uint8_t& SP, std::vector<uint8_t>& RAM) {
 }
 
 void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
     int carry = 0;
 
     if ((F & CARRY_FLAG) != 0) {
@@ -433,7 +433,7 @@ void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
     int carry = 0;
 
     if ((F & CARRY_FLAG) != 0) {
@@ -463,7 +463,7 @@ void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 }
 
 void ADC_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
     int carry = 0;
 
     if ((F & CARRY_FLAG) != 0) {
@@ -693,7 +693,7 @@ void AND_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
 }
 
 void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
     
     R1 ^= R2;
 
@@ -706,7 +706,7 @@ void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     uint16_t HL = (H << 8) | L;
 
@@ -721,7 +721,7 @@ void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 }
 
 void XOR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     PC++;
     uint8_t value = RAM[PC];
@@ -737,7 +737,7 @@ void XOR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
 }
 
 void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     R1 |= R2;
 
@@ -750,7 +750,7 @@ void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
 }
 
 void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     uint16_t HL = (H << 8) | L;
 
@@ -765,7 +765,7 @@ void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, 
 }
 
 void OR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F &= 0x00; // unset flags
+    F &= NO_FLAG; // unset flags
 
     PC++;
     uint8_t value = RAM[PC];
@@ -848,90 +848,73 @@ void CP_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-// The entire function is not optimized
-// A much better way should be found
-void RLC_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
-    // unset zero negative and half-carry flags
-    F &= ~(ZERO_FLAG | NEGATIVE_FLAG | HALF_CARRY_FLAG); 
+void RLCA(uint16_t& PC, uint8_t& A, uint8_t& F) {
+    F &= NO_FLAG; // unset flags
 
-    if ((R & 0b10000000) != 0) {
+    uint8_t oldA = A;
+
+    A = (A << 1);
+    
+    if ((oldA & 0b10000000) != 0) {
         F |= CARRY_FLAG; // set carry flag
-        R = (R << 1) | 0xFF;
-        R |= 0b00000001;
-    } else {
-        F &= ~CARRY_FLAG; // unset carry flag
-        R = (R << 1) | 0xFF;
+        A |= 0b00000001;
     }
 
     PC ++;
 }
 
-void RRC_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
-    // unset zero negative and half-carry flags
-    F &= ~(ZERO_FLAG | NEGATIVE_FLAG | HALF_CARRY_FLAG); 
+void RRCA(uint16_t& PC, uint8_t& A, uint8_t& F) {
+    F &= NO_FLAG; // unset flags
 
-    if ((R & 0b00000001) != 0) {
+    uint8_t oldA = A;
+
+    A = (A >> 1);
+
+    if ((oldA & 0b00000001) != 0) {
         F |= CARRY_FLAG; // set carry flag
-        R = R >> 1;
-        R |= 0b10000000;
-    } else {
-        F &= ~CARRY_FLAG; // unset carry flag
-        R = R >> 1;
+        A |= 0b10000000;
     }
 
     PC++;
 }
 
-void RL_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
-    // unset zero negative and half-carry flags
-    F &= ~(ZERO_FLAG | NEGATIVE_FLAG | HALF_CARRY_FLAG); 
-
-    bool msb = false;
-
-    if ((R & 0b10000000) != 0) {
-        msb = true;
-    }
+void RLA(uint16_t& PC, uint8_t& A, uint8_t& F) {
+    uint8_t oldA = A;
     
-    R = (R << 1) & 0xFF;
+    A = (A << 1);
     
-    // If carry flag is set
+    // put carry in bit 0
     if ((F & CARRY_FLAG) != 0) {
-        R |= 0b00000001;
+        A |= 0b00000001;
     }
+    
+    F = NO_FLAG;
 
-    // Put MSB of A into carry
-    if (msb) {
+    // Put MSB of A into the carry
+    if ((oldA & 0b10000000) != 0) {
         F |= CARRY_FLAG;
-    } else {
-        F &= ~CARRY_FLAG;
     }
 
     PC++;
 }
 
-void RR_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
-    // unset zero negative and half-carry flags
-    F &= ~(ZERO_FLAG | NEGATIVE_FLAG | HALF_CARRY_FLAG); 
+void RRA(uint16_t& PC, uint8_t& A, uint8_t& F) {
+    uint8_t oldA = A;
 
-    bool lst = false;
+    A = (A >> 1);
 
-    if ((R & 0b00000001) != 0) {
-        lst = true;
-    }
-
-    R = (R >> 1) & 0xFF;
-
-    // If carry flag is set
+    // put carry in bit 7
     if ((F & CARRY_FLAG) != 0) {
-        R |= 0b10000000;
+        A |= 0b10000000;
     }
+
+    F &= NO_FLAG;
 
     // Put LSB of A into carry
-    if (lst) {
+    if ((oldA & 0b00000001) != 0) {
         F |= CARRY_FLAG;
-    } else {
-        F &= ~CARRY_FLAG;
     }
+
 
     PC++;
 }
