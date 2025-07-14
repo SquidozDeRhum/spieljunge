@@ -1,5 +1,5 @@
-default: setup main.o tools.o opcodeR.o prefixed.o
-	g++ ./build/main.o ./build/tools.o ./build/opcodeR.o ./build/prefixed.o -o ./build/main -Wall
+default: setup main.o tools.o opcode.o prefixed.o
+	g++ ./build/main.o ./build/tools.o ./build/opcode.o ./build/prefixed.o -o ./build/main -Wall
 	./build/main
 
 setup:
@@ -11,8 +11,8 @@ main.o: ./main.cpp
 tools.o: ./lib/tools.cpp
 	g++ -c ./lib/tools.cpp -o ./build/tools.o
 
-opcodeR.o: ./lib/opcodeR.cpp
-	g++ -c ./lib/opcodeR.cpp -o ./build/opcodeR.o
+opcode.o: ./lib/opcode.cpp
+	g++ -c ./lib/opcode.cpp -o ./build/opcode.o
 
 prefixed.o: ./lib/prefixed.cpp
 	g++ -c ./lib/prefixed.cpp -o ./build/prefixed.o
