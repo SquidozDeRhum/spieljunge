@@ -2,3 +2,5 @@ main
 .vscode/
 build/
 src/
+script.py
+opcodes.txt

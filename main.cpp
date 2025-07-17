@@ -1,20 +1,21 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <bitset>
 #include <vector>
 #include <string>
 #include <cstdint>
 
-
 #include "./include/tools.hpp"
 #include "./include/const.hpp"
 
-#include "./include/opcodeR.hpp"
+#include "./include/opcode.hpp"
+#include "./include/prefixed.hpp"
 
 int main() {
 
     uint8_t A;
-    uint8_t F; // used for Z N H C flags
+    uint8_t F = 0x00; // used for Z N H C flags
     uint8_t B;
     uint8_t C;
     uint8_t D;
@@ -23,7 +24,7 @@ int main() {
     uint8_t L;
 
     uint16_t SP = SP_START;
-    uint16_t PC;
+    uint16_t PC = 0;
 
     std::vector<uint8_t> RAM = std::vector<uint8_t>(0xFFFF, 0x00);
 
@@ -31,11 +32,13 @@ int main() {
 
     // displayROM(RAM);
 
-    uint16_t test = 0xF;
+    uint8_t test = 0b11111111;
 
-    int8_t test2 = 0x1;
+    RAM[0x3458] = test;
 
-    std::cout << std::hex << test + test2 << std::endl;
+    RES_N_ADHL(PC, RAM, 0x34, 0x58, 3);
+
+    std::cout <<  std::bitset<8>(RAM[0xE780]) << std::endl;
 
     return EXIT_SUCCESS;
 }
