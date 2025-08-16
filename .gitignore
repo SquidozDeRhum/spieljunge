@@ -4,3 +4,5 @@ build/
 src/
 script.py
 opcodes.txt
+inst.txt
+switch.txt

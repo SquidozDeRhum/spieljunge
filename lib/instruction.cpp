@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdint>
 
-#include "../include/opcode.hpp"
+#include "../include/instruction.hpp"
 #include "../include/const.hpp"
 #include "../include/tools.hpp"
 
@@ -15,24 +15,29 @@ void NOP(uint16_t& PC) {
 
 void STOP_8(uint16_t& PC) {
     std::cout << "8 bits are important for GBC" << std::endl;
-    PC++;
-    PC++;
+    PC += 2;
 }
 
 void HALT(uint16_t& PC) {
     std::cout << "CPU should stop" << std::endl;
 }
 
-void LD_R_8(uint16_t& PC, uint8_t& R, std::vector<uint8_t>& RAM) {
+void LD_R8_8(uint16_t& PC, uint8_t& R, std::vector<uint8_t>& RAM) {
     PC++;
     R = RAM[PC];
 
     PC++;
 }
 
-void LD_R_AD16(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t R21, uint8_t R22) {
+void LD_R8_ADR16(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t R21, uint8_t R22) {
     uint16_t AD16 = (R21 << 8) | R22;
     R1 = RAM[AD16];
+
+    PC++;
+}
+
+void LD_R8_R8(uint16_t& PC, uint8_t& R1, uint8_t R2) {
+    R1 = R2;
 
     PC++;
 }
@@ -46,7 +51,7 @@ void LD_R16_16(uint16_t& PC, uint8_t& R1, uint8_t& R2, std::vector<uint8_t>& RAM
     PC++;
 }
 
-void LD_AD16_R(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t R11, uint8_t R12, uint8_t R2) {
+void LD_ADR16_R(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t R11, uint8_t R12, uint8_t R2) {
     uint16_t AD16 = (R11 << 8) | R12;
     RAM[AD16] = R2;
 
@@ -62,6 +67,18 @@ void LD_AD16_SP(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t SP) {
     RAM[AD16] = (SP & 0xFF);
     AD16++;
     RAM[AD16] = (SP >> 8);
+
+    PC++;
+}
+
+void LD_SP_16(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM) {
+    PC++;
+    uint16_t value = RAM[PC];
+
+    PC++;
+    value |= (RAM[PC] << 8);
+
+    SP = value;
 
     PC++;
 }
@@ -117,6 +134,14 @@ void LD_A_ADHL_D(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, 
     ADHL--;
     H = (ADHL >> 8);
     L = (ADHL & 0xFF);
+
+    PC++;
+}
+
+void LD_ADHL_R8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t R) {
+    uint16_t HL = (H << 8) | L;
+
+    RAM[HL] = R;
 
     PC++;
 }
@@ -188,6 +213,8 @@ void LDH_A_AD8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM) {
 
     A = RAM[0xFF00 | address];
 
+    std::cout << "0x" << std::hex <<  +RAM[0xFF00 | address] << std::endl;; 
+
     PC++;
 }
 
@@ -247,6 +274,12 @@ void INC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
     PC++;
 }
 
+void INC_SP(uint16_t& PC, uint16_t& SP) {
+    SP++;
+
+    PC++;
+}
+
 void DEC_R8(uint16_t& PC, uint8_t& R, uint8_t& F) {
     F |= NEGATIVE_FLAG; // set negative flag
     F &= (NEGATIVE_FLAG | CARRY_FLAG); // unset zero and half-carry flags
@@ -293,6 +326,12 @@ void DEC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
     if (RAM[combination] == 0) {
         F |= ZERO_FLAG;
     }
+
+    PC++;
+}
+
+void DEC_SP(uint16_t& PC, uint16_t& SP) {
+    SP--;
 
     PC++;
 }
@@ -395,11 +434,35 @@ void ADD_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-void ADD_SP_8(uint16_t& PC, uint8_t& SP, std::vector<uint8_t>& RAM) {
+void ADD_SP_8(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM) {
     PC++;
     int8_t value = RAM[PC];
 
     SP += value;
+
+    PC++;
+}
+
+void ADD_HL_SP(uint16_t& PC, uint8_t& H, uint8_t& L, uint16_t SP, uint8_t& F) {
+    // unset negative, half-carry and carry flags
+    F &= ~(NEGATIVE_FLAG | HALF_CARRY_FLAG | CARRY_FLAG);
+
+    uint16_t HL = (H << 8) | L;
+
+    // half-carry check
+    if ((HL & 0xFFF) + (SP & 0xFFF) > 0xFFF) {
+        F |= HALF_CARRY_FLAG;
+    }
+
+    // carry check
+    if (HL + SP > 0xFFFF) {
+        F |= CARRY_FLAG;
+    }
+
+    HL += SP;
+
+    H = (HL >> 8);
+    L = (HL & 0xFF);
 
     PC++;
 }
@@ -1183,11 +1246,13 @@ void JP_NC_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t F) {
     }
 }
 
-void JP_HL(uint16_t& PC, uint16_t HL) {
+void JP_HL(uint16_t& PC, uint8_t H, uint8_t L) {
+    uint16_t HL = (H << 8) | L;
+
     PC = HL;
 }
 
-void RST_AD(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint16_t AD) {
+void RST_AD(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t AD) {
     RAM[SP] = (PC + 1) >> 8;
     SP--;
     RAM[SP] = (PC + 1) & 0xFF;
@@ -1228,7 +1293,7 @@ void CALL_Z_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F)
     }
 }
 
-void CALL_NZ_16(uint16_t& PC, uint16_t& SP,std::vector<uint8_t>& RAM, uint8_t F) {
+void CALL_NZ_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & ZERO_FLAG) == 0) {
         RAM[SP] = (PC + 3) >> 8;
         SP--;

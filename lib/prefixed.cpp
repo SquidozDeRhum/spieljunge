@@ -4,7 +4,7 @@
 #include <string>
 #include <cstdint>
 
-#include "../include/opcode.hpp"
+#include "../include/prefixed.hpp"
 #include "../include/const.hpp"
 #include "../include/tools.hpp"
 
