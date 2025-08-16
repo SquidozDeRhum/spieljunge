@@ -34,7 +34,9 @@ void flagsOutput(uint8_t F) {
     std::cout << "Z : " << (F >> 7) << " N : " << ((F >> 6) & 0b1) << " H : " << ((F >> 5) & 0b1) << " C : " << ((F >> 4) & 0b1) << std::endl;
 }
 
-void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E, uint8_t& H, uint8_t& L, uint16_t& SP, uint16_t& PC, std::vector<uint8_t>& RAM) {
+void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E, uint8_t& H, uint8_t& L, uint16_t& SP, uint16_t& PC, std::vector<uint8_t>& RAM, int& cycles_counter) {
+    int complement = 0;
+
     switch (RAM[PC]) {
         case NOP_OP:
             NOP(PC);
@@ -134,6 +136,9 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case JR_NZ_8_OP:
             JR_NZ_8(PC, F, RAM);
+            if ((F & ZERO_FLAG) == 0) {
+                complement = 1;
+            }
             break;
         case LD_HL_16_OP:
             LD_R16_16(PC, H, L, RAM);
@@ -158,6 +163,9 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case JR_Z_8_OP:
             JR_Z_8(PC, F, RAM);
+            if ((F & ZERO_FLAG) != 0) {
+                complement = 1;
+            }
             break;
         case ADD_HL_HL_OP:
             ADD_R16_R16(PC, H, L, H, L, F);
@@ -182,6 +190,9 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case JR_NC_8_OP:
             JR_NC_8(PC, F, RAM);
+            if ((F & CARRY_FLAG) == 0) {
+                complement = 1;
+            }
             break;
         case LD_SP_16_OP:
             LD_SP_16(PC, SP, RAM);
@@ -206,6 +217,9 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case JR_C_8_OP:
             JR_C_8(PC, F, RAM);
+            if ((F & CARRY_FLAG) != 0) {
+                complement = 1;
+            }
             break;
         case ADD_HL_SP_OP:
             ADD_HL_SP(PC, H, L, SP, F);
@@ -614,18 +628,27 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case RET_NZ_OP:
             RET_NZ(PC, RAM, SP, F);
+            if ((F & ZERO_FLAG) == 0) {
+                complement = 3;
+            }
             break;
         case POP_BC_OP:
             POP_R16(PC, RAM, SP, B, C);
             break;
         case JP_NZ_16_OP:
             JP_NZ_16(PC, RAM, F);
+            if ((F & ZERO_FLAG) == 0) {
+                complement = 1;
+            }
             break;
         case JP_16_OP:
             JP_16(PC, RAM);
             break;
         case CALL_NZ_16_OP:
             CALL_NZ_16(PC, RAM, SP, F);
+            if ((F & ZERO_FLAG) == 0) {
+                complement = 3;
+            }
             break;
         case PUSH_BC_OP:
             PUSH_R16(PC, RAM, SP, B, C);
@@ -638,12 +661,18 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case RET_Z_OP:
             RET_Z(PC, RAM, SP, F);
+            if ((F & ZERO_FLAG) != 0) {
+                complement = 3;
+            }
             break;
         case RET_OP:
             RET(PC, RAM, SP);
             break;
         case JP_Z_16_OP:
             JP_Z_16(PC, RAM, F);
+            if ((F & ZERO_FLAG) != 0) {
+                complement = 1;
+            }
             break;
         case PREFIX_OP:
             std::cout << "Next instruction is prefixed" << std::endl;
@@ -651,6 +680,9 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case CALL_Z_16_OP:
             CALL_Z_16(PC, RAM, SP, F);
+            if ((F & ZERO_FLAG) != 0) {
+                complement = 3;
+            }
             break;
         case CALL_16_OP:
             CALL_16(PC, RAM, SP);
@@ -663,15 +695,24 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case RET_NC_OP:
             RET_NC(PC, RAM, SP, F);
+            if ((F & CARRY_FLAG) == 0) {
+                complement = 3;
+            }
             break;
         case POP_DE_OP:
             POP_R16(PC, RAM, SP, D, E);
             break;
         case JP_NC_16_OP:
             JP_NC_16(PC, RAM, F);
+            if ((F & CARRY_FLAG) == 0) {
+                complement = 1;
+            }
             break;
         case CALL_NC_16_OP:
             CALL_NC_16(PC, RAM, SP, F);
+            if ((F & CARRY_FLAG) == 0) {
+                complement = 3;
+            }
             break;
         case PUSH_DE_OP:
             PUSH_R16(PC, RAM, SP, D, E);
@@ -684,15 +725,24 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
         case RET_C_OP:
             RET_C(PC, RAM, SP, F);
+            if ((F & CARRY_FLAG) != 0) {
+                complement = 3;
+            }
             break;
         case RETI_OP:
             RETI(PC);
             break;
         case JP_C_16_OP:
             JP_C_16(PC, RAM, F);
+            if ((F & CARRY_FLAG) != 0) {
+                complement = 1;
+            }
             break;
         case CALL_C_16_OP:
             CALL_C_16(PC, RAM, SP, F);
+            if ((F & CARRY_FLAG) != 0) {
+                complement = 3;
+            }
             break;
         case SBC_A_8_OP:
             SBC_A_8(PC, A, RAM, F);
@@ -779,5 +829,7 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             PC++;
             break;
     }
+
+    cycles_counter += instructions_cycles[RAM[PC]] + complement;
 }
 

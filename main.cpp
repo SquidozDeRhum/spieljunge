@@ -26,6 +26,8 @@ int main() {
     uint16_t SP = SP_START;
     uint16_t PC = 0x0100;
 
+    int cycles_counter = 0;
+
     std::vector<uint8_t> RAM = std::vector<uint8_t>(0xFFFF, 0x00);
 
     loadROM(RAM, ROMPATH);
@@ -35,9 +37,18 @@ int main() {
     while (true) {
         std::cout << "PC : 0x" << std::hex << PC << std::endl;
         std::cout << "Instruction : 0x" << std::hex << +RAM[PC] << std::endl;
-        std::cout << "A : 0x" << std::hex << +A << std::endl;
+        
+        if (cycles_counter > 456) {
+            RAM[LY] += 1;
+            if (RAM[LY] == 154) {
+                RAM[LY] = 0;
+            }
+            cycles_counter -= 456;
+        }
+        
+        ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
 
-        ECI(A, F, B, C, D, E, H, L, SP, PC, RAM);
+        std::cout << "Cycle counter : " << std::dec << cycles_counter << std::endl;
     }
 
     return EXIT_SUCCESS;

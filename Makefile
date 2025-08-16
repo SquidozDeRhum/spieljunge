@@ -8,11 +8,11 @@ setup:
 main.o: ./main.cpp
 	g++ -c ./main.cpp -o ./build/main.o
 
-tools.o: ./lib/tools.cpp
-	g++ -c ./lib/tools.cpp -o ./build/tools.o
+tools.o: ./src/tools.cpp
+	g++ -c ./src/tools.cpp -o ./build/tools.o
 
-instruction.o: ./lib/instruction.cpp
-	g++ -c ./lib/instruction.cpp -o ./build/instruction.o
+instruction.o: ./src/instruction.cpp
+	g++ -c ./src/instruction.cpp -o ./build/instruction.o
 
-prefixed.o: ./lib/prefixed.cpp
-	g++ -c ./lib/prefixed.cpp -o ./build/prefixed.o
+prefixed.o: ./src/prefixed.cpp
+	g++ -c ./src/prefixed.cpp -o ./build/prefixed.o
