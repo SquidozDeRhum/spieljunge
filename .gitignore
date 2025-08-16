@@ -1,7 +1,7 @@
 main
 .vscode/
 build/
-src/
+tetris.gb
 script.py
 opcodes.txt
 inst.txt
