@@ -6,6 +6,8 @@
 #include <string>
 #include <cstdint>
 
+#include <raylib.h>
+
 #include "./include/tools.hpp"
 #include "./include/const.hpp"
 
@@ -34,22 +36,37 @@ int main() {
 
     // displayROM(RAM);
 
-    while (true) {
-        std::cout << "PC : 0x" << std::hex << PC << std::endl;
-        std::cout << "Instruction : 0x" << std::hex << +RAM[PC] << std::endl;
-        
-        if (cycles_counter > 456) {
-            RAM[LY] += 1;
-            if (RAM[LY] == 154) {
-                RAM[LY] = 0;
-            }
-            cycles_counter -= 456;
-        }
-        
-        ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
+    InitWindow(500, 500, "Spieljunge");
 
-        std::cout << "Cycle counter : " << std::dec << cycles_counter << std::endl;
+    while (!WindowShouldClose()) {
+
+        if (IsKeyPressed(KEY_SPACE)) {
+            
+            if (cycles_counter > 456) {
+                RAM[LY] += 1;
+                if (RAM[LY] == 154) {
+                    RAM[LY] = 0;
+                }
+                cycles_counter -= 456;
+            }
+            
+            ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
+
+        }
+
+
+        BeginDrawing();
+
+            ClearBackground(RAYWHITE);
+            DrawText(("PC : " + R16_to_str(PC)).c_str(), 10, 10, 20, BLACK);
+            DrawText(("B : " + R8_to_str(B)).c_str(), 10, 35, 20, BLACK);
+            DrawText(("C : " + R8_to_str(C)).c_str(), 10, 60, 20, BLACK);
+
+        EndDrawing();
+
     }
+
+    CloseWindow();
 
     return EXIT_SUCCESS;
 }

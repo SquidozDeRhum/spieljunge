@@ -1,5 +1,5 @@
 default: setup main.o tools.o instruction.o prefixed.o
-	g++ ./build/main.o ./build/tools.o ./build/instruction.o ./build/prefixed.o -o ./build/main -Wall
+	g++ ./build/main.o ./build/tools.o ./build/instruction.o ./build/prefixed.o -o ./build/main -lraylib -lGL -lm -lpthread -ldl -lrt -lX11 -Wall
 	./build/main
 
 setup:

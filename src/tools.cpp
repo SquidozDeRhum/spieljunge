@@ -34,6 +34,26 @@ void flagsOutput(uint8_t F) {
     std::cout << "Z : " << (F >> 7) << " N : " << ((F >> 6) & 0b1) << " H : " << ((F >> 5) & 0b1) << " C : " << ((F >> 4) & 0b1) << std::endl;
 }
 
+std::string R16_to_str(uint16_t R) {
+    std::string result = "0x";
+
+    for (int i = 12; i >= 0; i -= 4) {
+        result += hex[(R >> i) & 0xF];
+    }
+
+    return result;
+}
+
+std::string R8_to_str(uint16_t R) {
+    std::string result = "0x";
+
+    for (int i = 4; i >= 0; i -= 4) {
+        result += hex[(R >> i) & 0xF];
+    }
+
+    return result;
+}
+
 void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E, uint8_t& H, uint8_t& L, uint16_t& SP, uint16_t& PC, std::vector<uint8_t>& RAM, int& cycles_counter) {
     int complement = 0;
 
