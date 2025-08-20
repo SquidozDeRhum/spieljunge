@@ -94,7 +94,7 @@ void LD_AD16_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t A) {
     PC++;
 }
 
-void LD_ADHL_I_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A) {
+void LD_ADHL_I_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A) {
     uint16_t ADHL = (H << 8) | L;
     RAM[ADHL] = A;
 
@@ -105,7 +105,7 @@ void LD_ADHL_I_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, 
     PC++;
 }
 
-void LD_ADHL_D_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A) {
+void LD_ADHL_D_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A) {
     uint16_t ADHL = (H << 8) | L;
     RAM[ADHL] = A;
 
@@ -116,7 +116,7 @@ void LD_ADHL_D_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, 
     PC++;
 }
 
-void LD_A_ADHL_I(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A) {
+void LD_A_ADHL_I(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A) {
     uint16_t ADHL = (H << 8) | L;
     A = RAM[ADHL];
 
@@ -127,7 +127,7 @@ void LD_A_ADHL_I(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, 
     PC++;
 }
 
-void LD_A_ADHL_D(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A) {
+void LD_A_ADHL_D(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A) {
     uint16_t ADHL = (H << 8) | L;
     A = RAM[ADHL];
 
@@ -1105,17 +1105,21 @@ void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
 }
 
 void RET(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
-    uint16_t address = RAM[SP];
+    uint16_t address;
+    
+    address = (RAM[SP] << 8);
     SP++;
+    
+    address |= (RAM[SP]);
 
-    address |= (RAM[SP] << 8);
     SP++;
-
     PC = address;
+
+    std::cout << "Returning to : 0x" << std::hex << address << std::endl;
 }
 
 void RET_Z(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
-    if ((F & ZERO_FLAG) == 1) {
+    if ((F & ZERO_FLAG) != 0) {
         uint16_t address = RAM[SP];
         SP++;
 
@@ -1143,7 +1147,7 @@ void RET_NZ(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t &SP, uint8_t F) {
 }
 
 void RET_C(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
-    if ((F & CARRY_FLAG) == 1) {
+    if ((F & CARRY_FLAG) != 1) {
         uint16_t address = RAM[SP];
         SP++;
 
@@ -1175,20 +1179,24 @@ void RETI(uint16_t& PC) {
 }
 
 void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
+    SP--;
     RAM[SP] = R2;
+    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
     SP--;
 
+    
     RAM[SP] = R1;
-    SP--;
+    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
+
 
     PC++;
 }
 
 void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
-    R2 = RAM[SP];
-    SP++;
-
     R1 = RAM[SP];
+    SP++;
+    
+    R2 = RAM[SP];
     SP++;
 
     PC++;
@@ -1276,10 +1284,12 @@ void RST_AD(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t AD) {
 }
 
 void CALL_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
-    RAM[SP] = (PC + 3) >> 8;
     SP--;
     RAM[SP] = (PC + 3) & 0xFF;
+    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
     SP--;
+    RAM[SP] = (PC + 3) >> 8;
+    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
 
     PC++;
     uint16_t address = RAM[PC];
@@ -1292,10 +1302,10 @@ void CALL_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
 
 void CALL_Z_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & ZERO_FLAG) == 1) {
-        RAM[SP] = (PC + 3) >> 8;
         SP--;
         RAM[SP] = (PC + 3) & 0xFF;
         SP--;
+        RAM[SP] = (PC + 3) >> 8;
 
         PC++;
         uint16_t address = RAM[PC];
@@ -1311,10 +1321,10 @@ void CALL_Z_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F)
 
 void CALL_NZ_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & ZERO_FLAG) == 0) {
-        RAM[SP] = (PC + 3) >> 8;
         SP--;
         RAM[SP] = (PC + 3) & 0xFF;
         SP--;
+        RAM[SP] = (PC + 3) >> 8;
 
         PC++;
         uint16_t address = RAM[PC];
@@ -1330,10 +1340,10 @@ void CALL_NZ_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F
 
 void CALL_C_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & CARRY_FLAG) == 1) {
-        RAM[SP] = (PC + 3) >> 8;
         SP--;
         RAM[SP] = (PC + 3) & 0xFF;
         SP--;
+        RAM[SP] = (PC + 3) >> 8;
 
         PC++;
         uint16_t address = RAM[PC];
@@ -1349,10 +1359,10 @@ void CALL_C_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F)
 
 void CALL_NC_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
     if ((F & CARRY_FLAG) == 0) {
-        RAM[SP] = (PC + 3) >> 8;
         SP--;
         RAM[SP] = (PC + 3) & 0xFF;
         SP--;
+        RAM[SP] = (PC + 3) >> 8;
 
         PC++;
         uint16_t address = RAM[PC];

@@ -2,8 +2,26 @@
 
 #include "../include/tools.hpp"
 #include "../include/const.hpp"
+
 #include "../include/opcodes.hpp"
+#include "../include/popcodes.hpp"
+
 #include "../include/instruction.hpp"
+#include "../include/prefixed.hpp"
+
+void loadBoot(std::vector<u_int8_t>& RAM, std::string filename) {
+    char value;
+
+    std::fstream rom;
+    rom.open(filename, std::fstream::in | std::fstream::binary);
+
+    u_int16_t counter = 0x0000;
+
+    while (rom.read(&value, 1) && counter < BOOTSIZE) {
+        RAM[counter] = value;
+        counter++;
+    }
+}
 
 void loadROM(std::vector<u_int8_t>& RAM, std::string filename) {
     char value;
@@ -20,7 +38,18 @@ void loadROM(std::vector<u_int8_t>& RAM, std::string filename) {
 }
 
 void displayROM(std::vector<u_int8_t>& RAM) {
-    for (int i = 1; i < ROMSIZE + 2; i++) {
+    for (int i = 0x1; i < ROMSIZE + 2; i++) {
+        std::cout << std::hex << int(RAM[i - 1]) << "\t";
+        if (i % 0x10 == 0) {
+            std::cout << std::endl;
+        }
+    }
+
+    std::cout << std::endl;
+}
+
+void displayMemorySection(std::vector<u_int8_t>& RAM, int start, int end) {
+    for (int i = start + 1; i < end + 2; i++) {
         std::cout << std::hex << int(RAM[i - 1]) << "\t";
         if (i % 0x10 == 0) {
             std::cout << std::endl;
@@ -56,6 +85,8 @@ std::string R8_to_str(uint16_t R) {
 
 void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E, uint8_t& H, uint8_t& L, uint16_t& SP, uint16_t& PC, std::vector<uint8_t>& RAM, int& cycles_counter) {
     int complement = 0;
+
+    cycles_counter += instructions_cycles[RAM[PC]];
 
     switch (RAM[PC]) {
         case NOP_OP:
@@ -695,8 +726,8 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             }
             break;
         case PREFIX_OP:
-            std::cout << "Next instruction is prefixed" << std::endl;
-            PC += 2;
+            PC++;
+            EPR(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
             break;
         case CALL_Z_16_OP:
             CALL_Z_16(PC, RAM, SP, F);
@@ -850,6 +881,782 @@ void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E,
             break;
     }
 
-    cycles_counter += instructions_cycles[RAM[PC]] + complement;
+    cycles_counter += complement;
 }
 
+void EPR(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E, uint8_t& H, uint8_t& L, uint16_t& SP, uint16_t& PC, std::vector<uint8_t>& RAM, int& cycles_counter) {
+
+    cycles_counter += prefixed_cycles[RAM[PC]];
+
+    switch (RAM[PC]) {
+        case RLC_B_OP:
+            RLC_R(PC, B, F);
+            break;
+        case RLC_C_OP:
+            RLC_R(PC, C, F);
+            break;
+        case RLC_D_OP:
+            RLC_R(PC, D, F);
+            break;
+        case RLC_E_OP:
+            RLC_R(PC, E, F);
+            break;
+        case RLC_H_OP:
+            RLC_R(PC, H, F);
+            break;
+        case RLC_L_OP:
+            RLC_R(PC, L, F);
+            break;
+        case RLC_ADHL_OP:
+            RLC_ADHL(PC, RAM, H, L, F);
+            break;
+        case RLC_A_OP:
+            RLC_R(PC, A, F);
+            break;
+        case RRC_B_OP:
+            RRC_R(PC, B, F);
+            break;
+        case RRC_C_OP:
+            RRC_R(PC, C, F);
+            break;
+        case RRC_D_OP:
+            RRC_R(PC, D, F);
+            break;
+        case RRC_E_OP:
+            RRC_R(PC, E, F);
+            break;
+        case RRC_H_OP:
+            RRC_R(PC, H, F);
+            break;
+        case RRC_L_OP:
+            RRC_R(PC, L, F);
+            break;
+        case RRC_ADHL_OP:
+            RRC_ADHL(PC, RAM, H, L, F);
+            break;
+        case RRC_A_OP:
+            RRC_R(PC, A, F);
+            break;
+        case RL_B_OP:
+            RL_R(PC, B, F);
+            break;
+        case RL_C_OP:
+            RL_R(PC, C, F);
+            break;
+        case RL_D_OP:
+            RL_R(PC, D, F);
+            break;
+        case RL_E_OP:
+            RL_R(PC, E, F);
+            break;
+        case RL_H_OP:
+            RL_R(PC, H, F);
+            break;
+        case RL_L_OP:
+            RL_R(PC, L, F);
+            break;
+        case RL_ADHL_OP:
+            RL_ADHL(PC, RAM, H, L, F);
+            break;
+        case RL_A_OP:
+            RL_R(PC, A, F);
+            break;
+        case RR_B_OP:
+            RR_R(PC, B, F);
+            break;
+        case RR_C_OP:
+            RR_R(PC, C, F);
+            break;
+        case RR_D_OP:
+            RR_R(PC, D, F);
+            break;
+        case RR_E_OP:
+            RR_R(PC, E, F);
+            break;
+        case RR_H_OP:
+            RR_R(PC, H, F);
+            break;
+        case RR_L_OP:
+            RR_R(PC, L, F);
+            break;
+        case RR_ADHL_OP:
+            RR_ADHL(PC, RAM, H, L, F);
+            break;
+        case RR_A_OP:
+            RR_R(PC, A, F);
+            break;
+        case SLA_B_OP:
+            SLA_R(PC, B, F);
+            break;
+        case SLA_C_OP:
+            SLA_R(PC, C, F);
+            break;
+        case SLA_D_OP:
+            SLA_R(PC, D, F);
+            break;
+        case SLA_E_OP:
+            SLA_R(PC, E, F);
+            break;
+        case SLA_H_OP:
+            SLA_R(PC, H, F);
+            break;
+        case SLA_L_OP:
+            SLA_R(PC, L, F);
+            break;
+        case SLA_ADHL_OP:
+            SLA_ADHL(PC, RAM, H, L, F);
+            break;
+        case SLA_A_OP:
+            SLA_R(PC, A, F);
+            break;
+        case SRA_B_OP:
+            SRA_R(PC, B, F);
+            break;
+        case SRA_C_OP:
+            SRA_R(PC, C, F);
+            break;
+        case SRA_D_OP:
+            SRA_R(PC, D, F);
+            break;
+        case SRA_E_OP:
+            SRA_R(PC, E, F);
+            break;
+        case SRA_H_OP:
+            SRA_R(PC, H, F);
+            break;
+        case SRA_L_OP:
+            SRA_R(PC, L, F);
+            break;
+        case SRA_ADHL_OP:
+            SRA_ADHL(PC, RAM, H, L, F);
+            break;
+        case SRA_A_OP:
+            SRA_R(PC, A, F);
+            break;
+        case SWAP_B_OP:
+            SWAP_R(PC, B, F);
+            break;
+        case SWAP_C_OP:
+            SWAP_R(PC, C, F);
+            break;
+        case SWAP_D_OP:
+            SWAP_R(PC, D, F);
+            break;
+        case SWAP_E_OP:
+            SWAP_R(PC, E, F);
+            break;
+        case SWAP_H_OP:
+            SWAP_R(PC, H, F);
+            break;
+        case SWAP_L_OP:
+            SWAP_R(PC, L, F);
+            break;
+        case SWAP_ADHL_OP:
+            SWAP_ADHL(PC, RAM, H, L, F);
+            break;
+        case SWAP_A_OP:
+            SWAP_R(PC, A, F);
+            break;
+         case SRL_B_OP:
+            SRL_R(PC, B, F);
+            break;
+        case SRL_C_OP:
+            SRL_R(PC, C, F);
+            break;
+        case SRL_D_OP:
+            SRL_R(PC, D, F);
+            break;
+        case SRL_E_OP:
+            SRL_R(PC, E, F);
+            break;
+        case SRL_H_OP:
+            SRL_R(PC, H, F);
+            break;
+        case SRL_L_OP:
+            SRL_R(PC, L, F);
+            break;
+        case SRL_ADHL_OP:
+            SRL_ADHL(PC, RAM, H, L, F);
+            break;
+        case SRL_A_OP:
+            SRL_R(PC, A, F);
+            break;
+        case BIT_0_B_OP:
+            BIT_N_R(PC, B, F, 0);
+            break;
+        case BIT_0_C_OP:
+            BIT_N_R(PC, C, F, 0);
+            break;
+        case BIT_0_D_OP:
+            BIT_N_R(PC, D, F, 0);
+            break;
+        case BIT_0_E_OP:
+            BIT_N_R(PC, E, F, 0);
+            break;
+        case BIT_0_H_OP:
+            BIT_N_R(PC, H, F, 0);
+            break;
+        case BIT_0_L_OP:
+            BIT_N_R(PC, L, F, 0);
+            break;
+        case BIT_0_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 0);
+            break;
+        case BIT_0_A_OP:
+            BIT_N_R(PC, A, F, 0);
+            break;
+        case BIT_1_B_OP:
+            BIT_N_R(PC, B, F, 1);
+            break;
+        case BIT_1_C_OP:
+            BIT_N_R(PC, C, F, 1);
+            break;
+        case BIT_1_D_OP:
+            BIT_N_R(PC, D, F, 1);
+            break;
+        case BIT_1_E_OP:
+            BIT_N_R(PC, E, F, 1);
+            break;
+        case BIT_1_H_OP:
+            BIT_N_R(PC, H, F, 1);
+            break;
+        case BIT_1_L_OP:
+            BIT_N_R(PC, L, F, 1);
+            break;
+        case BIT_1_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 1);
+            break;
+        case BIT_1_A_OP:
+            BIT_N_R(PC, A, F, 1);
+            break;
+        case BIT_2_B_OP:
+            BIT_N_R(PC, B, F, 2);
+            break;
+        case BIT_2_C_OP:
+            BIT_N_R(PC, C, F, 2);
+            break;
+        case BIT_2_D_OP:
+            BIT_N_R(PC, D, F, 2);
+            break;
+        case BIT_2_E_OP:
+            BIT_N_R(PC, E, F, 2);
+            break;
+        case BIT_2_H_OP:
+            BIT_N_R(PC, H, F, 2);
+            break;
+        case BIT_2_L_OP:
+            BIT_N_R(PC, L, F, 2);
+            break;
+        case BIT_2_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 2);
+            break;
+        case BIT_2_A_OP:
+            BIT_N_R(PC, A, F, 2);
+            break;
+        case BIT_3_B_OP:
+            BIT_N_R(PC, B, F, 3);
+            break;
+        case BIT_3_C_OP:
+            BIT_N_R(PC, C, F, 3);
+            break;
+        case BIT_3_D_OP:
+            BIT_N_R(PC, D, F, 3);
+            break;
+        case BIT_3_E_OP:
+            BIT_N_R(PC, E, F, 3);
+            break;
+        case BIT_3_H_OP:
+            BIT_N_R(PC, H, F, 3);
+            break;
+        case BIT_3_L_OP:
+            BIT_N_R(PC, L, F, 3);
+            break;
+        case BIT_3_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 3);
+            break;
+        case BIT_3_A_OP:
+            BIT_N_R(PC, A, F, 3);
+            break;
+        case BIT_4_B_OP:
+            BIT_N_R(PC, B, F, 4);
+            break;
+        case BIT_4_C_OP:
+            BIT_N_R(PC, C, F, 4);
+            break;
+        case BIT_4_D_OP:
+            BIT_N_R(PC, D, F, 4);
+            break;
+        case BIT_4_E_OP:
+            BIT_N_R(PC, E, F, 4);
+            break;
+        case BIT_4_H_OP:
+            BIT_N_R(PC, H, F, 4);
+            break;
+        case BIT_4_L_OP:
+            BIT_N_R(PC, L, F, 4);
+            break;
+        case BIT_4_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 4);
+            break;
+        case BIT_4_A_OP:
+            BIT_N_R(PC, A, F, 4);
+            break;
+        case BIT_5_B_OP:
+            BIT_N_R(PC, B, F, 5);
+            break;
+        case BIT_5_C_OP:
+            BIT_N_R(PC, C, F, 5);
+            break;
+        case BIT_5_D_OP:
+            BIT_N_R(PC, D, F, 5);
+            break;
+        case BIT_5_E_OP:
+            BIT_N_R(PC, E, F, 5);
+            break;
+        case BIT_5_H_OP:
+            BIT_N_R(PC, H, F, 5);
+            break;
+        case BIT_5_L_OP:
+            BIT_N_R(PC, L, F, 5);
+            break;
+        case BIT_5_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 5);
+            break;
+        case BIT_5_A_OP:
+            BIT_N_R(PC, A, F, 5);
+            break;
+        case BIT_6_B_OP:
+            BIT_N_R(PC, B, F, 6);
+            break;
+        case BIT_6_C_OP:
+            BIT_N_R(PC, C, F, 6);
+            break;
+        case BIT_6_D_OP:
+            BIT_N_R(PC, D, F, 6);
+            break;
+        case BIT_6_E_OP:
+            BIT_N_R(PC, E, F, 6);
+            break;
+        case BIT_6_H_OP:
+            BIT_N_R(PC, H, F, 6);
+            break;
+        case BIT_6_L_OP:
+            BIT_N_R(PC, L, F, 6);
+            break;
+        case BIT_6_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 6);
+            break;
+        case BIT_6_A_OP:
+            BIT_N_R(PC, A, F, 6);
+            break;
+        case BIT_7_B_OP:
+            BIT_N_R(PC, B, F, 7);
+            break;
+        case BIT_7_C_OP:
+            BIT_N_R(PC, C, F, 7);
+            break;
+        case BIT_7_D_OP:
+            BIT_N_R(PC, D, F, 7);
+            break;
+        case BIT_7_E_OP:
+            BIT_N_R(PC, E, F, 7);
+            break;
+        case BIT_7_H_OP:
+            BIT_N_R(PC, H, F, 7);
+            break;
+        case BIT_7_L_OP:
+            BIT_N_R(PC, L, F, 7);
+            break;
+        case BIT_7_ADHL_OP:
+            BIT_N_ADHL(PC, RAM, H, L, F, 7);
+            break;
+        case BIT_7_A_OP:
+            BIT_N_R(PC, A, F, 7);
+            break;
+        case RES_0_B_OP:
+            RES_N_R(PC, B, 0);
+            break;
+        case RES_0_C_OP:
+            RES_N_R(PC, C, 0);
+            break;
+        case RES_0_D_OP:
+            RES_N_R(PC, D, 0);
+            break;
+        case RES_0_E_OP:
+            RES_N_R(PC, E, 0);
+            break;
+        case RES_0_H_OP:
+            RES_N_R(PC, H, 0);
+            break;
+        case RES_0_L_OP:
+            RES_N_R(PC, L, 0);
+            break;
+        case RES_0_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 0);
+            break;
+        case RES_0_A_OP:
+            RES_N_R(PC, A, 0);
+            break;
+        case RES_1_B_OP:
+            RES_N_R(PC, B, 1);
+            break;
+        case RES_1_C_OP:
+            RES_N_R(PC, C, 1);
+            break;
+        case RES_1_D_OP:
+            RES_N_R(PC, D, 1);
+            break;
+        case RES_1_E_OP:
+            RES_N_R(PC, E, 1);
+            break;
+        case RES_1_H_OP:
+            RES_N_R(PC, H, 1);
+            break;
+        case RES_1_L_OP:
+            RES_N_R(PC, L, 1);
+            break;
+        case RES_1_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 1);
+            break;
+        case RES_1_A_OP:
+            RES_N_R(PC, A, 1);
+            break;
+        case RES_2_B_OP:
+            RES_N_R(PC, B, 2);
+            break;
+        case RES_2_C_OP:
+            RES_N_R(PC, C, 2);
+            break;
+        case RES_2_D_OP:
+            RES_N_R(PC, D, 2);
+            break;
+        case RES_2_E_OP:
+            RES_N_R(PC, E, 2);
+            break;
+        case RES_2_H_OP:
+            RES_N_R(PC, H, 2);
+            break;
+        case RES_2_L_OP:
+            RES_N_R(PC, L, 2);
+            break;
+        case RES_2_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 2);
+            break;
+        case RES_2_A_OP:
+            RES_N_R(PC, A, 2);
+            break;
+        case RES_3_B_OP:
+            RES_N_R(PC, B, 3);
+            break;
+        case RES_3_C_OP:
+            RES_N_R(PC, C, 3);
+            break;
+        case RES_3_D_OP:
+            RES_N_R(PC, D, 3);
+            break;
+        case RES_3_E_OP:
+            RES_N_R(PC, E, 3);
+            break;
+        case RES_3_H_OP:
+            RES_N_R(PC, H, 3);
+            break;
+        case RES_3_L_OP:
+            RES_N_R(PC, L, 3);
+            break;
+        case RES_3_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 3);
+            break;
+        case RES_3_A_OP:
+            RES_N_R(PC, A, 3);
+            break;
+        case RES_4_B_OP:
+            RES_N_R(PC, B, 4);
+            break;
+        case RES_4_C_OP:
+            RES_N_R(PC, C, 4);
+            break;
+        case RES_4_D_OP:
+            RES_N_R(PC, D, 4);
+            break;
+        case RES_4_E_OP:
+            RES_N_R(PC, E, 4);
+            break;
+        case RES_4_H_OP:
+            RES_N_R(PC, H, 4);
+            break;
+        case RES_4_L_OP:
+            RES_N_R(PC, L, 4);
+            break;
+        case RES_4_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 4);
+            break;
+        case RES_4_A_OP:
+            RES_N_R(PC, A, 4);
+            break;
+        case RES_5_B_OP:
+            RES_N_R(PC, B, 5);
+            break;
+        case RES_5_C_OP:
+            RES_N_R(PC, C, 5);
+            break;
+        case RES_5_D_OP:
+            RES_N_R(PC, D, 5);
+            break;
+        case RES_5_E_OP:
+            RES_N_R(PC, E, 5);
+            break;
+        case RES_5_H_OP:
+            RES_N_R(PC, H, 5);
+            break;
+        case RES_5_L_OP:
+            RES_N_R(PC, L, 5);
+            break;
+        case RES_5_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 5);
+            break;
+        case RES_5_A_OP:
+            RES_N_R(PC, A, 5);
+            break;
+        case RES_6_B_OP:
+            RES_N_R(PC, B, 6);
+            break;
+        case RES_6_C_OP:
+            RES_N_R(PC, C, 6);
+            break;
+        case RES_6_D_OP:
+            RES_N_R(PC, D, 6);
+            break;
+        case RES_6_E_OP:
+            RES_N_R(PC, E, 6);
+            break;
+        case RES_6_H_OP:
+            RES_N_R(PC, H, 6);
+            break;
+        case RES_6_L_OP:
+            RES_N_R(PC, L, 6);
+            break;
+        case RES_6_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 6);
+            break;
+        case RES_6_A_OP:
+            RES_N_R(PC, A, 6);
+            break;
+        case RES_7_B_OP:
+            RES_N_R(PC, B, 7);
+            break;
+        case RES_7_C_OP:
+            RES_N_R(PC, C, 7);
+            break;
+        case RES_7_D_OP:
+            RES_N_R(PC, D, 7);
+            break;
+        case RES_7_E_OP:
+            RES_N_R(PC, E, 7);
+            break;
+        case RES_7_H_OP:
+            RES_N_R(PC, H, 7);
+            break;
+        case RES_7_L_OP:
+            RES_N_R(PC, L, 7);
+            break;
+        case RES_7_ADHL_OP:
+            RES_N_ADHL(PC, RAM, H, L, 7);
+            break;
+        case RES_7_A_OP:
+            RES_N_R(PC, A, 7);
+            break;
+        case SET_0_B_OP:
+            SET_N_R(PC, B, 0);
+            break;
+        case SET_0_C_OP:
+            SET_N_R(PC, C, 0);
+            break;
+        case SET_0_D_OP:
+            SET_N_R(PC, D, 0);
+            break;
+        case SET_0_E_OP:
+            SET_N_R(PC, E, 0);
+            break;
+        case SET_0_H_OP:
+            SET_N_R(PC, H, 0);
+            break;
+        case SET_0_L_OP:
+            SET_N_R(PC, L, 0);
+            break;
+        case SET_0_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 0);
+            break;
+        case SET_0_A_OP:
+            SET_N_R(PC, A, 0);
+            break;
+        case SET_1_B_OP:
+            SET_N_R(PC, B, 1);
+            break;
+        case SET_1_C_OP:
+            SET_N_R(PC, C, 1);
+            break;
+        case SET_1_D_OP:
+            SET_N_R(PC, D, 1);
+            break;
+        case SET_1_E_OP:
+            SET_N_R(PC, E, 1);
+            break;
+        case SET_1_H_OP:
+            SET_N_R(PC, H, 1);
+            break;
+        case SET_1_L_OP:
+            SET_N_R(PC, L, 1);
+            break;
+        case SET_1_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 1);
+            break;
+        case SET_1_A_OP:
+            SET_N_R(PC, A, 1);
+            break;
+        case SET_2_B_OP:
+            SET_N_R(PC, B, 2);
+            break;
+        case SET_2_C_OP:
+            SET_N_R(PC, C, 2);
+            break;
+        case SET_2_D_OP:
+            SET_N_R(PC, D, 2);
+            break;
+        case SET_2_E_OP:
+            SET_N_R(PC, E, 2);
+            break;
+        case SET_2_H_OP:
+            SET_N_R(PC, H, 2);
+            break;
+        case SET_2_L_OP:
+            SET_N_R(PC, L, 2);
+            break;
+        case SET_2_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 2);
+            break;
+        case SET_2_A_OP:
+            SET_N_R(PC, A, 2);
+            break;
+        case SET_3_B_OP:
+            SET_N_R(PC, B, 3);
+            break;
+        case SET_3_C_OP:
+            SET_N_R(PC, C, 3);
+            break;
+        case SET_3_D_OP:
+            SET_N_R(PC, D, 3);
+            break;
+        case SET_3_E_OP:
+            SET_N_R(PC, E, 3);
+            break;
+        case SET_3_H_OP:
+            SET_N_R(PC, H, 3);
+            break;
+        case SET_3_L_OP:
+            SET_N_R(PC, L, 3);
+            break;
+        case SET_3_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 3);
+            break;
+        case SET_3_A_OP:
+            SET_N_R(PC, A, 3);
+            break;
+        case SET_4_B_OP:
+            SET_N_R(PC, B, 4);
+            break;
+        case SET_4_C_OP:
+            SET_N_R(PC, C, 4);
+            break;
+        case SET_4_D_OP:
+            SET_N_R(PC, D, 4);
+            break;
+        case SET_4_E_OP:
+            SET_N_R(PC, E, 4);
+            break;
+        case SET_4_H_OP:
+            SET_N_R(PC, H, 4);
+            break;
+        case SET_4_L_OP:
+            SET_N_R(PC, L, 4);
+            break;
+        case SET_4_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 4);
+            break;
+        case SET_4_A_OP:
+            SET_N_R(PC, A, 4);
+            break;
+        case SET_5_B_OP:
+            SET_N_R(PC, B, 5);
+            break;
+        case SET_5_C_OP:
+            SET_N_R(PC, C, 5);
+            break;
+        case SET_5_D_OP:
+            SET_N_R(PC, D, 5);
+            break;
+        case SET_5_E_OP:
+            SET_N_R(PC, E, 5);
+            break;
+        case SET_5_H_OP:
+            SET_N_R(PC, H, 5);
+            break;
+        case SET_5_L_OP:
+            SET_N_R(PC, L, 5);
+            break;
+        case SET_5_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 5);
+            break;
+        case SET_5_A_OP:
+            SET_N_R(PC, A, 5);
+            break;
+        case SET_6_B_OP:
+            SET_N_R(PC, B, 6);
+            break;
+        case SET_6_C_OP:
+            SET_N_R(PC, C, 6);
+            break;
+        case SET_6_D_OP:
+            SET_N_R(PC, D, 6);
+            break;
+        case SET_6_E_OP:
+            SET_N_R(PC, E, 6);
+            break;
+        case SET_6_H_OP:
+            SET_N_R(PC, H, 6);
+            break;
+        case SET_6_L_OP:
+            SET_N_R(PC, L, 6);
+            break;
+        case SET_6_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 6);
+            break;
+        case SET_6_A_OP:
+            SET_N_R(PC, A, 6);
+            break;
+        case SET_7_B_OP:
+            SET_N_R(PC, B, 7);
+            break;
+        case SET_7_C_OP:
+            SET_N_R(PC, C, 7);
+            break;
+        case SET_7_D_OP:
+            SET_N_R(PC, D, 7);
+            break;
+        case SET_7_E_OP:
+            SET_N_R(PC, E, 7);
+            break;
+        case SET_7_H_OP:
+            SET_N_R(PC, H, 7);
+            break;
+        case SET_7_L_OP:
+            SET_N_R(PC, L, 7);
+            break;
+        case SET_7_ADHL_OP:
+            SET_N_ADHL(PC, RAM, H, L, 7);
+            break;
+        case SET_7_A_OP:
+            SET_N_R(PC, A, 7);
+            break;
+    }
+
+}

@@ -322,9 +322,10 @@ void BIT_N_R(uint16_t& PC, uint8_t& R, uint8_t& F, int N) {
 
     uint8_t value = (R >> N);
 
-    if ((value & 0b00000001) != 0) {
+    if ((value & 0b00000001) == 0) {
         F |= ZERO_FLAG;
     }
+
 
     PC++;
 }
@@ -337,7 +338,7 @@ void BIT_N_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, 
 
     uint8_t value = (RAM[HL] >> N);
 
-    if ((value & 0b00000001) != 0) {
+    if ((value & 0b00000001) == 0) {
         F |= ZERO_FLAG;
     }
 
@@ -352,4 +353,14 @@ void RES_N_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, 
     uint16_t HL = (H << 8) | L;
 
     RAM[HL] &= ~(1u << N);
+}
+
+void SET_N_R(uint16_t& PC, uint8_t& R, int N) {
+    R |= (1u << N);
+}   
+
+void SET_N_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, int N) {
+    uint16_t HL = (H << 8) | L;
+
+    RAM[HL] |= (1u << N);
 }

@@ -3,6 +3,9 @@
 #define ROMSIZE 0x7FFF
 #define ROMPATH "./src/tetris.gb"
 
+#define BOOTSIZE 0xFF
+#define BOOTPATH "./src/dmg_boot.bin"
+
 #define ZERO_FLAG 0b10000000
 #define NEGATIVE_FLAG 0b01000000
 #define HALF_CARRY_FLAG 0b00100000
@@ -15,6 +18,7 @@
 #define NB_DAA_CHECK 2
 
 #define LY 0xFF44
+#define LCDC 0xFF40
 
 const char hex[0x10] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
@@ -23,7 +27,7 @@ const char hex[0x10] = {
 const int instructions_cycles[0x100] = 
 {
 1, 3, 2, 2, 1, 1, 2, 1, 5, 2, 2, 2, 1, 1, 2, 1,
-2, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1,
+1, 3, 2, 2, 1, 1, 2, 1, 3, 2, 2, 2, 1, 1, 2, 1,
 2, 3, 2, 2, 1, 1, 2, 1, 2, 2, 2, 2, 1, 1, 2, 1,
 2, 3, 2, 2, 3, 3, 3, 1, 2, 2, 2, 2, 1, 1, 2, 1,
 1, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 2, 1,

@@ -18,10 +18,10 @@ void LD_ADR16_R(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t R11, uint8_t R1
 void LD_AD16_SP(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t SP);
 void LD_SP_16(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM);
 void LD_AD16_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t A);
-void LD_ADHL_I_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A);
-void LD_ADHL_D_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A);
-void LD_A_ADHL_I(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A);
-void LD_A_ADHL_D(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t A);
+void LD_ADHL_I_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A);
+void LD_ADHL_D_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A);
+void LD_A_ADHL_I(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A);
+void LD_A_ADHL_D(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A);
 void LD_ADHL_R8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t R);
 void LD_ADHL_8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L);
 void LD_HL_SP8(uint16_t& PC, uint8_t& H, uint8_t& L, uint16_t SP, std::vector<uint8_t>& RAM, uint8_t& F);

@@ -2,6 +2,7 @@ main
 .vscode/
 build/
 tetris.gb
+dmg_boot.bin
 script.py
 opcodes.txt
 inst.txt
