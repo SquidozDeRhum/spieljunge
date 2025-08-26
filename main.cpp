@@ -15,6 +15,8 @@
 #include "./include/instruction.hpp"
 #include "./include/prefixed.hpp"
 
+#include "./include/rendering.hpp"
+
 int main() {
 
     uint8_t A = 0x01;
@@ -39,111 +41,101 @@ int main() {
 
     InitWindow(680, 432, "Spieljunge");
 
-    int breakpoint = 0xfe;
+    int breakpoint = 0x5b;
+    bool breakpoint_reached = false;
+
+    Image screen = GenImageColor(480, 432, BLACK);
+    Texture screen_tex = LoadTextureFromImage(screen);
+
+    bool screen_updated = false;
 
     while (!WindowShouldClose()) {
-        if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_S) || PC < breakpoint) {
+        if (IsKeyDown(KEY_N)) {
 
-            if (cycles_counter >= 114 && (RAM[LCDC] & 0x80) != 0) {
-                RAM[LY] += 1;
+            bool loop_done = false;
+
+            if (RAM[LY] < 144) {
+                loop_done = true;
+            }
+
+            bool zero_passed = false;
+            
+            while (RAM[LY] != 144 || !loop_done) {
+                ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
+                
+                if (cycles_counter >= 114) {
+                    if ((RAM[LCDC] & 0x80) != 0) {
+                        draw_line(RAM, screen);
+                        RAM[LY] += 1;
+                    }
+                    cycles_counter -= 114;
+                }
+
                 if (RAM[LY] == 154) {
                     RAM[LY] = 0;
+                    screen_updated = false;
+                    zero_passed = true;
+                }
+
+                if (RAM[LY] == 144 && zero_passed) {
+                    loop_done = true;
+                }
+            }
+
+        } else if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_S) || !breakpoint_reached) {
+            ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
+
+            if (cycles_counter >= 114) {
+                if ((RAM[LCDC] & 0x80) != 0) {
+                    draw_line(RAM, screen);
+                    RAM[LY] += 1;
                 }
                 cycles_counter -= 114;
             }
-            
-            ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
 
-        }
-
-        if (PC >= breakpoint) {
-            BeginDrawing();
-        
-                    ClearBackground(RAYWHITE);
-                    DrawText(("PC : " + R16_to_str(PC)).c_str(), 10, 10, 20, BLACK);
-                    DrawText(("AF : " + R16_to_str((A << 8) | F)).c_str(), 10, 35, 20, BLACK);
-                    DrawText(("BC : " + R16_to_str((B << 8) | C)).c_str(), 10, 60, 20, BLACK);
-                    DrawText(("DE : " + R16_to_str((D << 8) | E)).c_str(), 10, 85, 20, BLACK);
-                    DrawText(("HL : " + R16_to_str((H << 8) | L)).c_str(), 10, 110, 20, BLACK);
-                    DrawText(("LY : " + R8_to_str(RAM[LY])).c_str(), 10, 150, 20, RED);
-                    DrawText(("M-Cycles : " + std::to_string(cycles_counter)).c_str(), 10, 175, 20, PURPLE);
-                    DrawText(("SP : " + R16_to_str(SP)).c_str(), 10, 205, 20, GREEN);
-                    DrawText(("Instruction : " + R16_to_str(RAM[PC])).c_str(), 10, 230, 20, RED);
-    
-        
-            EndDrawing();
-        }
-
-    }
-
-    CloseWindow();
-
-    std::cout << "LCDC : " << +RAM[LCDC] << std::endl;
-    std::cout << "9910 : " << +RAM[0x990F] << std::endl;
-
-    displayMemorySection(RAM, 0x8000, 0x9FFF);
-
-    /*
-
-
-    RAM[LCDC] = 0x91;
-
-    displayROM(RAM);
-    
-    InitWindow(500, 500, "Spieljunge");
-
-    bool reached = false;
-
-    auto start = std::chrono::high_resolution_clock::now();
-
-    while (!WindowShouldClose()) {
-
-        if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_S) || PC < breakpoint) {
-
-            if (cycles_counter >= 114 && (RAM[LCDC] & 0x80) != 0) {
-                RAM[LY] += 1;
-                if (RAM[LY] == 154) {
-                    RAM[LY] = 0;
-                }
-                cycles_counter -= 114;
+            if (RAM[LY] == 154) {
+                RAM[LY] = 0;
+                screen_updated = false;
             }
-            
-            ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
-
         }
-
-        if (PC == breakpoint && !reached) {
-            reached = true;
-
-            auto stop = std::chrono::high_resolution_clock::now();
-
-            auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-
-            std::cout << "Time to reach breakpoint : " << duration.count() << " microseconds." << std::endl;
+        
+        if (PC == breakpoint) {
+            breakpoint_reached = true;
         }
-
-        if (PC >= breakpoint) {     
+        
+        if (breakpoint_reached) {
             BeginDrawing();
-    
-                ClearBackground(RAYWHITE);
+            
+                DrawRectangle(0, 0, 200, 432, WHITE);
                 DrawText(("PC : " + R16_to_str(PC)).c_str(), 10, 10, 20, BLACK);
-                DrawText(("SP : " + R16_to_str(SP)).c_str(), 200, 10, 20, GREEN);
                 DrawText(("AF : " + R16_to_str((A << 8) | F)).c_str(), 10, 35, 20, BLACK);
                 DrawText(("BC : " + R16_to_str((B << 8) | C)).c_str(), 10, 60, 20, BLACK);
                 DrawText(("DE : " + R16_to_str((D << 8) | E)).c_str(), 10, 85, 20, BLACK);
                 DrawText(("HL : " + R16_to_str((H << 8) | L)).c_str(), 10, 110, 20, BLACK);
                 DrawText(("LY : " + R8_to_str(RAM[LY])).c_str(), 10, 150, 20, RED);
-
                 DrawText(("M-Cycles : " + std::to_string(cycles_counter)).c_str(), 10, 175, 20, PURPLE);
-    
+                DrawText(("SP : " + R16_to_str(SP)).c_str(), 10, 205, 20, GREEN);
+                DrawText(("Inst : " + R16_to_str(RAM[PC])).c_str(), 10, 230, 20, RED);
+                
+                DrawFPS(10, 255);
+                
+
+                if (RAM[LY] == 144 && !screen_updated) {
+
+                    UpdateTexture(screen_tex, screen.data);
+                    DrawRectangle(SCREEN_X_START, 0, 480, 432, BLACK);
+                    DrawTexture(screen_tex, SCREEN_X_START, 0, WHITE);
+
+                    screen_updated = true;
+                }
+        
             EndDrawing();
+
         }
 
     }
 
     CloseWindow();
-
-    */
 
     return EXIT_SUCCESS;
 }

@@ -15,10 +15,22 @@
 
 #define SP_START 0xFFFE
 
+#define VRAM_START 0x8000
+#define VRAM_FIRST_TL 0x9800
+
 #define NB_DAA_CHECK 2
 
 #define LY 0xFF44
+#define SCY 0xFF42
+#define SCX 0xFF43
 #define LCDC 0xFF40
+
+#define SCREEN_X_START 200
+
+#define FIRST_COLOR 0x0
+#define SECOND_COLOR 0x1
+#define THIRD_COLOR 0x2
+#define FOURTH_COLOR 0x3
 
 const char hex[0x10] = {
     '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'

@@ -60,9 +60,9 @@ void LD_ADR16_R(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t R11, uint8_t R1
 
 void LD_AD16_SP(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t SP) {
     PC++;
-    uint16_t AD16 = (RAM[PC] << 8);
+    uint16_t AD16 = RAM[PC];
     PC++;
-    AD16 |= RAM[PC];
+    AD16 |= (RAM[PC] << 8);
 
     RAM[AD16] = (SP & 0xFF);
     AD16++;
@@ -83,11 +83,12 @@ void LD_SP_16(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM) {
     PC++;
 }
 
+// It is low-endian HENRI. THINK PLEASE THINK
 void LD_AD16_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t A) {
     PC++;
-    uint16_t AD16 = (RAM[PC] << 8);
+    uint16_t AD16 = RAM[PC];
     PC++;
-    AD16 |= RAM[PC];
+    AD16 |= (RAM[PC] << 8);
 
     RAM[AD16] = A;
 
@@ -1114,8 +1115,6 @@ void RET(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
 
     SP++;
     PC = address;
-
-    std::cout << "Returning to : 0x" << std::hex << address << std::endl;
 }
 
 void RET_Z(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F) {
@@ -1181,12 +1180,10 @@ void RETI(uint16_t& PC) {
 void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
     SP--;
     RAM[SP] = R2;
-    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
     SP--;
 
     
     RAM[SP] = R1;
-    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
 
 
     PC++;
@@ -1286,10 +1283,8 @@ void RST_AD(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t AD) {
 void CALL_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
     SP--;
     RAM[SP] = (PC + 3) & 0xFF;
-    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
     SP--;
     RAM[SP] = (PC + 3) >> 8;
-    std::cout << "Pushed : 0x" << std::hex << +RAM[SP] << std::endl;
 
     PC++;
     uint16_t address = RAM[PC];
