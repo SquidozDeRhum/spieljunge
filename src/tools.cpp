@@ -17,7 +17,7 @@ void loadBoot(std::vector<u_int8_t>& RAM, std::string filename) {
 
     u_int16_t counter = 0x0000;
 
-    while (rom.read(&value, 1) && counter < BOOTSIZE) {
+    while (rom.read(&value, 1) && counter <= BOOTSIZE) {
         RAM[counter] = value;
         counter++;
     }
@@ -31,7 +31,7 @@ void loadROM(std::vector<u_int8_t>& RAM, std::string filename) {
 
     u_int16_t counter = 0x0000;
 
-    while (rom.read(&value, 1) && counter < ROMSIZE) {
+    while (rom.read(&value, 1) && counter <= ROMSIZE) {
         RAM[counter] = value;
         counter++;
     }

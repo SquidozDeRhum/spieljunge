@@ -196,8 +196,13 @@ void LD_A_AD16(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM) {
 void LDH_AD8_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t A) {
     PC++;
     uint8_t address = RAM[PC];
+    uint8_t values = RAM[0xFF00 | address] & 0x0F;
 
     RAM[0xFF00 | address] = A;
+
+    if (address == 0) {
+        RAM[0xFF00 | address] |= values;
+    }
 
     PC++;
 }
@@ -213,6 +218,10 @@ void LDH_A_AD8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM) {
     uint8_t address = RAM[PC];
 
     A = RAM[0xFF00 | address];
+
+    if (address == 0) {
+        A |= 0xC0;
+    }
 
     PC++;
 }
@@ -402,7 +411,7 @@ void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t 
 
     combinationR1 += combinationR2;
     R11 = combinationR1 >> 8;
-    R22 = (combinationR2 & 0xFF);
+    R12 = (combinationR1 & 0xFF);
 
     PC++;
 }
@@ -750,6 +759,10 @@ void AND_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
 
     PC++;
     A &= RAM[PC];
+
+    if (A == 0) {
+        F |= ZERO_FLAG;
+    }
 
     PC++;
 }
@@ -1112,8 +1125,8 @@ void RET(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP) {
     SP++;
     
     address |= (RAM[SP]);
-
     SP++;
+
     PC = address;
 }
 
@@ -1180,11 +1193,9 @@ void RETI(uint16_t& PC) {
 void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
     SP--;
     RAM[SP] = R2;
-    SP--;
-
     
+    SP--;
     RAM[SP] = R1;
-
 
     PC++;
 }
@@ -1272,10 +1283,10 @@ void JP_HL(uint16_t& PC, uint8_t H, uint8_t L) {
 }
 
 void RST_AD(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t AD) {
-    RAM[SP] = (PC + 1) >> 8;
     SP--;
     RAM[SP] = (PC + 1) & 0xFF;
     SP--;
+    RAM[SP] = (PC + 1) >> 8;
 
     PC = AD;
 }

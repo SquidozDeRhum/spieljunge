@@ -38,16 +38,7 @@ void draw_line(std::vector<uint8_t>& RAM, Image& screen) {
 
         int jaaj = VRAM_FIRST_TL + (RAM[SCY] / 8) * 32 + RAM[SCX] + i + (RAM[LY] / 8) * 32;
 
-        if (RAM[jaaj] != 0) {
-            std::cout << "jaaj : 0x" << std::hex << jaaj << '\n';
-            std::cout << "RAM[jaaj] : 0x" << std::hex << +RAM[jaaj] << '\n';
-            std::cout << "RAM[LY] : 0x" << std::hex << +RAM[LY] << '\n';
-        }
-
         uint16_t tl = get_tile(RAM[jaaj], RAM)[RAM[LY] % 8]; // tile line
-
-        // std::cout << "RAM[SCY] : 0x" << std::hex << +RAM[SCY] << std::endl; 
-        // std::cout << "Jaaj : 0x" << std::hex << +(jaaj) << std::endl; 
 
         for (int j = 14; j >= 0; j -= 2) {
             switch ((tl >> j) & 0x3)

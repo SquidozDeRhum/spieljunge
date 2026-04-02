@@ -33,24 +33,39 @@ int main() {
 
     int cycles_counter = 0;
     
-    std::vector<uint8_t> RAM = std::vector<uint8_t>(0xFFFF, 0x00);
+    std::vector<uint8_t> RAM = std::vector<uint8_t>(0x10000, 0x00);
+
+    // Initialization of RAM values
+    RAM[JOYP] = 0xCF;
     
     loadROM(RAM, ROMPATH);
-
     loadBoot(RAM, BOOTPATH);
 
+    bool DMGEnabled = true;
+    
     InitWindow(680, 432, "Spieljunge");
+    SetTargetFPS(60);
 
-    int breakpoint = 0x5b;
+    int breakpoint = 0x386; // 0xF7
+    // Regarder ce qu'il se passe après 2CA et 
+    // voir si le compteur de M-Cycles s'incrémente quand
+    // LCDC.7 == 0
     bool breakpoint_reached = false;
 
     Image screen = GenImageColor(480, 432, BLACK);
     Texture screen_tex = LoadTextureFromImage(screen);
 
-    bool screen_updated = false;
-
     while (!WindowShouldClose()) {
-        if (IsKeyDown(KEY_N)) {
+        if (PC == breakpoint) {
+            breakpoint_reached = true;
+        }
+
+        if (RAM[BOOTROM] & 0x01 == 1 && DMGEnabled) {
+            loadROM(RAM, ROMPATH);
+            DMGEnabled = false;
+        }
+
+        if (IsKeyDown(KEY_N) || IsKeyPressed(KEY_F)) {
 
             bool loop_done = false;
 
@@ -61,6 +76,7 @@ int main() {
             bool zero_passed = false;
             
             while (RAM[LY] != 144 || !loop_done) {
+                // std::cout << std::hex << "PC : " << +PC << " Instruction : " << +RAM[PC] << std::endl;
                 ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
                 
                 if (cycles_counter >= 114) {
@@ -73,40 +89,43 @@ int main() {
 
                 if (RAM[LY] == 154) {
                     RAM[LY] = 0;
-                    screen_updated = false;
                     zero_passed = true;
                 }
 
                 if (RAM[LY] == 144 && zero_passed) {
                     loop_done = true;
                 }
-            }
 
-        } else if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_S) || !breakpoint_reached) {
-            ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
-
-            if (cycles_counter >= 114) {
-                if ((RAM[LCDC] & 0x80) != 0) {
-                    draw_line(RAM, screen);
-                    RAM[LY] += 1;
+                if ((RAM[LCDC] & 0x80) == 0) {
+                    RAM[LY] = 0;
                 }
-                cycles_counter -= 114;
             }
 
-            if (RAM[LY] == 154) {
-                RAM[LY] = 0;
-                screen_updated = false;
-            }
-        }
-        
-        if (PC == breakpoint) {
-            breakpoint_reached = true;
+        } else if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_I) || !breakpoint_reached) {
+            ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
+                
+                if (cycles_counter >= 114) {
+                    if ((RAM[LCDC] & 0x80) != 0) {
+                        draw_line(RAM, screen);
+                        RAM[LY] += 1;
+                    }
+                    cycles_counter -= 114;
+                }
+
+                if (RAM[LY] == 154) {
+                    RAM[LY] = 0;
+                }
+
+                if ((RAM[LCDC] & 0x80) == 0) {
+                    RAM[LY] = 0;
+                }
         }
         
         if (breakpoint_reached) {
             BeginDrawing();
+
+                ClearBackground(WHITE);
             
-                DrawRectangle(0, 0, 200, 432, WHITE);
                 DrawText(("PC : " + R16_to_str(PC)).c_str(), 10, 10, 20, BLACK);
                 DrawText(("AF : " + R16_to_str((A << 8) | F)).c_str(), 10, 35, 20, BLACK);
                 DrawText(("BC : " + R16_to_str((B << 8) | C)).c_str(), 10, 60, 20, BLACK);
@@ -118,19 +137,11 @@ int main() {
                 DrawText(("Inst : " + R16_to_str(RAM[PC])).c_str(), 10, 230, 20, RED);
                 
                 DrawFPS(10, 255);
-                
 
-                if (RAM[LY] == 144 && !screen_updated) {
-
-                    UpdateTexture(screen_tex, screen.data);
-                    DrawRectangle(SCREEN_X_START, 0, 480, 432, BLACK);
-                    DrawTexture(screen_tex, SCREEN_X_START, 0, WHITE);
-
-                    screen_updated = true;
-                }
+                UpdateTexture(screen_tex, screen.data);
+                DrawTexture(screen_tex, SCREEN_X_START, 0, WHITE);
         
             EndDrawing();
-
         }
 
     }

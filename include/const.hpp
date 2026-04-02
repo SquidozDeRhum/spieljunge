@@ -1,10 +1,10 @@
 #pragma once
 
 #define ROMSIZE 0x7FFF
-#define ROMPATH "./src/tetris.gb"
+#define ROMPATH "./assets/tetris.gb"
 
 #define BOOTSIZE 0xFF
-#define BOOTPATH "./src/dmg_boot.bin"
+#define BOOTPATH "./assets/dmg_boot.bin"
 
 #define ZERO_FLAG 0b10000000
 #define NEGATIVE_FLAG 0b01000000
@@ -20,10 +20,14 @@
 
 #define NB_DAA_CHECK 2
 
+#define JOYP 0xFF00
+
 #define LY 0xFF44
 #define SCY 0xFF42
 #define SCX 0xFF43
 #define LCDC 0xFF40
+
+#define BOOTROM 0xFF50
 
 #define SCREEN_X_START 200
 

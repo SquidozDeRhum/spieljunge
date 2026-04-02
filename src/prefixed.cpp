@@ -347,20 +347,28 @@ void BIT_N_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, 
 
 void RES_N_R(uint16_t& PC, uint8_t& R, int N) {
     R &= ~(1u << N);
+
+    PC++;
 }
 
 void RES_N_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, int N) {
     uint16_t HL = (H << 8) | L;
 
     RAM[HL] &= ~(1u << N);
+
+    PC++;
 }
 
 void SET_N_R(uint16_t& PC, uint8_t& R, int N) {
     R |= (1u << N);
+
+    PC++;
 }   
 
 void SET_N_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, int N) {
     uint16_t HL = (H << 8) | L;
 
     RAM[HL] |= (1u << N);
+
+    PC++;
 }
