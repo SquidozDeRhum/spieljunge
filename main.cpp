@@ -19,19 +19,7 @@
 
 int main() {
 
-    uint8_t A = 0x01;
-    uint8_t F = 0xB0; // used for Z N H C flags
-    uint8_t B = 0x00;
-    uint8_t C = 0x13;
-    uint8_t D = 0x00;
-    uint8_t E = 0xD8;
-    uint8_t H = 0x01;
-    uint8_t L = 0x4D;
-
-    uint16_t SP = SP_START;
-    uint16_t PC = 0x0000;
-
-    int cycles_counter = 0;
+    Registers registers;
     
     std::vector<uint8_t> RAM = std::vector<uint8_t>(0x10000, 0x00);
 
@@ -46,7 +34,7 @@ int main() {
     InitWindow(680, 432, "Spieljunge");
     SetTargetFPS(60);
 
-    int breakpoint = 0x386; // 0xF7
+    int breakpoint = 0x0; // 0xF7
     // Regarder ce qu'il se passe après 2CA et 
     // voir si le compteur de M-Cycles s'incrémente quand
     // LCDC.7 == 0
@@ -56,67 +44,66 @@ int main() {
     Texture screen_tex = LoadTextureFromImage(screen);
 
     while (!WindowShouldClose()) {
-        if (PC == breakpoint) {
+        if (registers.PC == breakpoint) {
             breakpoint_reached = true;
         }
-
+        
         if (RAM[BOOTROM] & 0x01 == 1 && DMGEnabled) {
             loadROM(RAM, ROMPATH);
             DMGEnabled = false;
         }
-
+        
         if (IsKeyDown(KEY_N) || IsKeyPressed(KEY_F)) {
-
+            
             bool loop_done = false;
-
+            
             if (RAM[LY] < 144) {
                 loop_done = true;
             }
-
+            
             bool zero_passed = false;
             
             while (RAM[LY] != 144 || !loop_done) {
                 // std::cout << std::hex << "PC : " << +PC << " Instruction : " << +RAM[PC] << std::endl;
-                ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
+                ECI(registers, RAM);
                 
-                if (cycles_counter >= 114) {
-                    if ((RAM[LCDC] & 0x80) != 0) {
+                if ((RAM[LCDC] & 0x80) == 0x80) {
+                    if (registers.cycles_counter >= 114) {
                         draw_line(RAM, screen);
                         RAM[LY] += 1;
+                        registers.cycles_counter -= 114;
                     }
-                    cycles_counter -= 114;
+                } else {
+                    RAM[LY] = 0;
+                    registers.cycles_counter = 0;
                 }
-
+                
                 if (RAM[LY] == 154) {
                     RAM[LY] = 0;
                     zero_passed = true;
                 }
-
+                
                 if (RAM[LY] == 144 && zero_passed) {
                     loop_done = true;
                 }
-
-                if ((RAM[LCDC] & 0x80) == 0) {
-                    RAM[LY] = 0;
-                }
             }
-
+            
         } else if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_I) || !breakpoint_reached) {
-            ECI(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
-                
-                if (cycles_counter >= 114) {
-                    if ((RAM[LCDC] & 0x80) != 0) {
-                        draw_line(RAM, screen);
-                        RAM[LY] += 1;
+            if (registers.PC > 0x27C3 && registers.PC < 0x27D4) displayMemorySection(RAM, VRAM_START, 0x803F);
+            ECI(registers, RAM);
+            
+            if ((RAM[LCDC] & 0x80) == 0x80) {
+                if (registers.cycles_counter >= 114) {
+                    draw_line(RAM, screen);
+                    RAM[LY] += 1;
+                        registers.cycles_counter -= 114;
                     }
-                    cycles_counter -= 114;
+                } else {
+                    RAM[LY] = 0;
+                    registers.cycles_counter = 0;
                 }
 
                 if (RAM[LY] == 154) {
-                    RAM[LY] = 0;
-                }
-
-                if ((RAM[LCDC] & 0x80) == 0) {
                     RAM[LY] = 0;
                 }
         }
@@ -126,15 +113,15 @@ int main() {
 
                 ClearBackground(WHITE);
             
-                DrawText(("PC : " + R16_to_str(PC)).c_str(), 10, 10, 20, BLACK);
-                DrawText(("AF : " + R16_to_str((A << 8) | F)).c_str(), 10, 35, 20, BLACK);
-                DrawText(("BC : " + R16_to_str((B << 8) | C)).c_str(), 10, 60, 20, BLACK);
-                DrawText(("DE : " + R16_to_str((D << 8) | E)).c_str(), 10, 85, 20, BLACK);
-                DrawText(("HL : " + R16_to_str((H << 8) | L)).c_str(), 10, 110, 20, BLACK);
+                DrawText(("PC : " + R16_to_str(registers.PC)).c_str(), 10, 10, 20, BLACK);
+                DrawText(("AF : " + R16_to_str((registers.A << 8) | registers.F)).c_str(), 10, 35, 20, BLACK);
+                DrawText(("BC : " + R16_to_str((registers.B << 8) | registers.C)).c_str(), 10, 60, 20, BLACK);
+                DrawText(("DE : " + R16_to_str((registers.D << 8) | registers.E)).c_str(), 10, 85, 20, BLACK);
+                DrawText(("HL : " + R16_to_str((registers.H << 8) | registers.L)).c_str(), 10, 110, 20, BLACK);
                 DrawText(("LY : " + R8_to_str(RAM[LY])).c_str(), 10, 150, 20, RED);
-                DrawText(("M-Cycles : " + std::to_string(cycles_counter)).c_str(), 10, 175, 20, PURPLE);
-                DrawText(("SP : " + R16_to_str(SP)).c_str(), 10, 205, 20, GREEN);
-                DrawText(("Inst : " + R16_to_str(RAM[PC])).c_str(), 10, 230, 20, RED);
+                DrawText(("M-Cycles : " + std::to_string(registers.cycles_counter)).c_str(), 10, 175, 20, PURPLE);
+                DrawText(("SP : " + R16_to_str(registers.SP)).c_str(), 10, 205, 20, GREEN);
+                DrawText(("Inst : " + R16_to_str(RAM[registers.PC])).c_str(), 10, 230, 20, RED);
                 
                 DrawFPS(10, 255);
 

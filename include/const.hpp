@@ -16,6 +16,7 @@
 #define SP_START 0xFFFE
 
 #define VRAM_START 0x8000
+#define VRAM_END 0x9FFF
 #define VRAM_FIRST_TL 0x9800
 
 #define NB_DAA_CHECK 2

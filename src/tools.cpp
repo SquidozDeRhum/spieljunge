@@ -49,6 +49,7 @@ void displayROM(std::vector<u_int8_t>& RAM) {
 }
 
 void displayMemorySection(std::vector<u_int8_t>& RAM, int start, int end) {
+    std::cout << "Displaying ram from 0x" << std::hex << +start << " to 0x" << +end << std::endl;
     for (int i = start + 1; i < end + 2; i++) {
         std::cout << std::hex << int(RAM[i - 1]) << "\t";
         if (i % 0x10 == 0) {
@@ -83,1579 +84,1577 @@ std::string R8_to_str(uint16_t R) {
     return result;
 }
 
-void ECI(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E, uint8_t& H, uint8_t& L, uint16_t& SP, uint16_t& PC, std::vector<uint8_t>& RAM, int& cycles_counter) {
+void ECI(Registers& registers, std::vector<uint8_t>& RAM) {
     int complement = 0;
 
-    cycles_counter += instructions_cycles[RAM[PC]];
+    registers.cycles_counter += instructions_cycles[RAM[registers.PC]];
 
-    switch (RAM[PC]) {
+    switch (RAM[registers.PC]) {
         case NOP_OP:
-            NOP(PC);
+            NOP(registers.PC);
             break;
         case LD_BC_16_OP:
-            LD_R16_16(PC, B, C, RAM);
+            LD_R16_16(registers.PC, registers.B, registers.C, RAM);
             break;
         case LD_ADBC_A_OP:
-            LD_ADR16_R(PC, RAM, B, C, A);
+            LD_ADR16_R(registers.PC, RAM, registers.B, registers.C, registers.A);
             break;
         case INC_BC_OP:
-            INC_R16(PC, B, C);
+            INC_R16(registers.PC, registers.B, registers.C);
             break;
         case INC_B_OP:
-            INC_R8(PC, B, F);
+            INC_R8(registers.PC, registers.B, registers.F);
             break;
         case DEC_B_OP:
-            DEC_R8(PC, B, F);
+            DEC_R8(registers.PC, registers.B, registers.F);
             break;
         case LD_B_8_OP:
-            LD_R8_8(PC, B, RAM);
+            LD_R8_8(registers.PC, registers.B, RAM);
             break;
         case RLCA_OP:
-            RLCA(PC, A, F);
+            RLCA(registers.PC, registers.A, registers.F);
             break;
         case LD_AD16_SP_OP:
-            LD_AD16_SP(PC, RAM, SP);
+            LD_AD16_SP(registers.PC, RAM, registers.SP);
             break;
         case ADD_HL_BC_OP:
-            ADD_R16_R16(PC, H, L, B, C, F);
+            ADD_R16_R16(registers.PC, registers.H, registers.L, registers.B, registers.C, registers.F);
             break;
         case LD_A_ADBC_OP:
-            LD_R8_ADR16(PC, A, RAM, B, C);
+            LD_R8_ADR16(registers.PC, registers.A, RAM, registers.B, registers.C);
             break;
         case DEC_BC_OP:
-            DEC_R16(PC, B, C);
+            DEC_R16(registers.PC, registers.B, registers.C);
             break;
         case INC_C_OP:
-            INC_R8(PC, C, F);
+            INC_R8(registers.PC, registers.C, registers.F);
             break;
         case DEC_C_OP:
-            DEC_R8(PC, C, F);
+            DEC_R8(registers.PC, registers.C, registers.F);
             break;
         case LD_C_8_OP:
-            LD_R8_8(PC, C, RAM);
+            LD_R8_8(registers.PC, registers.C, RAM);
             break;
         case RRCA_OP:
-            RRCA(PC, A, F);
+            RRCA(registers.PC, registers.A, registers.F);
             break;
         case STOP_8_OP:
-            STOP_8(PC);
+            STOP_8(registers.PC);
             break;
         case LD_DE_16_OP:
-            LD_R16_16(PC, D, E, RAM);
+            LD_R16_16(registers.PC, registers.D, registers.E, RAM);
             break;
         case LD_ADDE_A_OP:
-            LD_ADR16_R(PC, RAM, D, E, A);
+            LD_ADR16_R(registers.PC, RAM, registers.D, registers.E, registers.A);
             break;
         case INC_DE_OP:
-            INC_R16(PC, D, E);
+            INC_R16(registers.PC, registers.D, registers.E);
             break;
         case INC_D_OP:
-            INC_R8(PC, D, F);
+            INC_R8(registers.PC, registers.D, registers.F);
             break;
         case DEC_D_OP:
-            DEC_R8(PC, D, F);
+            DEC_R8(registers.PC, registers.D, registers.F);
             break;
         case LD_D_8_OP:
-            LD_R8_8(PC, D, RAM);
+            LD_R8_8(registers.PC, registers.D, RAM);
             break;
         case RLA_OP:
-            RLA(PC, A, F);
+            RLA(registers.PC, registers.A, registers.F);
             break;
         case JR_8_OP:
-            JR_8(PC, RAM);
+            JR_8(registers.PC, RAM);
             break;
         case ADD_HL_DE_OP:
-            ADD_R16_R16(PC, H, L, D, E, F);
+            ADD_R16_R16(registers.PC, registers.H, registers.L, registers.D, registers.E, registers.F);
             break;
         case LD_A_ADDE_OP:
-            LD_R8_ADR16(PC, A, RAM, D, E);
+            LD_R8_ADR16(registers.PC, registers.A, RAM, registers.D, registers.E);
             break;
         case DEC_DE_OP:
-            DEC_R16(PC, D, E);
+            DEC_R16(registers.PC, registers.D, registers.E);
             break;
         case INC_E_OP:
-            INC_R8(PC, E, F);
+            INC_R8(registers.PC, registers.E, registers.F);
             break;
         case DEC_E_OP:
-            DEC_R8(PC, E, F);
+            DEC_R8(registers.PC, registers.E, registers.F);
             break;
         case LD_E_8_OP:
-            LD_R8_8(PC, E, RAM);
+            LD_R8_8(registers.PC, registers.E, RAM);
             break;
         case RRA_OP:
-            RRA(PC, A, F);
+            RRA(registers.PC, registers.A, registers.F);
             break;
         case JR_NZ_8_OP:
-            JR_NZ_8(PC, F, RAM);
-            if ((F & ZERO_FLAG) == 0) {
+            JR_NZ_8(registers.PC, registers.F, RAM);
+            if ((registers.F & ZERO_FLAG) == 0) {
                 complement = 1;
             }
             break;
         case LD_HL_16_OP:
-            LD_R16_16(PC, H, L, RAM);
+            LD_R16_16(registers.PC, registers.H, registers.L, RAM);
             break;
         case LD_ADHLP_A_OP:
-            LD_ADHL_I_A(PC, RAM, H, L, A);
+            LD_ADHL_I_A(registers.PC, RAM, registers.H, registers.L, registers.A);
             break;
         case INC_HL_OP:
-            INC_R16(PC, H, L);
+            INC_R16(registers.PC, registers.H, registers.L);
             break;
         case INC_H_OP:
-            INC_R8(PC, H, F);
+            INC_R8(registers.PC, registers.H, registers.F);
             break;
         case DEC_H_OP:
-            DEC_R8(PC, H, F);
+            DEC_R8(registers.PC, registers.H, registers.F);
             break;
         case LD_H_8_OP:
-            LD_R8_8(PC, H, RAM);
+            LD_R8_8(registers.PC, registers.H, RAM);
             break;
         case DAA_OP:
-            DAA(PC, A, F);
+            DAA(registers.PC, registers.A, registers.F);
             break;
         case JR_Z_8_OP:
-            JR_Z_8(PC, F, RAM);
-            if ((F & ZERO_FLAG) != 0) {
+            JR_Z_8(registers.PC, registers.F, RAM);
+            if ((registers.F & ZERO_FLAG) != 0) {
                 complement = 1;
             }
             break;
         case ADD_HL_HL_OP:
-            ADD_R16_R16(PC, H, L, H, L, F);
+            ADD_R16_R16(registers.PC, registers.H, registers.L, registers.H, registers.L, registers.F);
             break;
         case LD_A_ADHLP_OP:
-            LD_A_ADHL_I(PC, RAM, H, L, A);
+            LD_A_ADHL_I(registers.PC, RAM, registers.H, registers.L, registers.A);
             break;
         case DEC_HL_OP:
-            DEC_R16(PC, H, L);
+            DEC_R16(registers.PC, registers.H, registers.L);
             break;
         case INC_L_OP:
-            INC_R8(PC, L, F);
+            INC_R8(registers.PC, registers.L, registers.F);
             break;
         case DEC_L_OP:
-            DEC_R8(PC, L, F);
+            DEC_R8(registers.PC, registers.L, registers.F);
             break;
         case LD_L_8_OP:
-            LD_R8_8(PC, L, RAM);
+            LD_R8_8(registers.PC, registers.L, RAM);
             break;
         case CPL_OP:
-            CPL(PC, A, F);
+            CPL(registers.PC, registers.A, registers.F);
             break;
         case JR_NC_8_OP:
-            JR_NC_8(PC, F, RAM);
-            if ((F & CARRY_FLAG) == 0) {
+            JR_NC_8(registers.PC, registers.F, RAM);
+            if ((registers.F & CARRY_FLAG) == 0) {
                 complement = 1;
             }
             break;
         case LD_SP_16_OP:
-            LD_SP_16(PC, SP, RAM);
+            LD_SP_16(registers.PC, registers.SP, RAM);
             break;
         case LD_ADHLM_A_OP:
-            LD_ADHL_D_A(PC, RAM, H, L, A);
+            LD_ADHL_D_A(registers.PC, RAM, registers.H, registers.L, registers.A);
             break;
         case INC_SP_OP:
-            INC_SP(PC, SP);
+            INC_SP(registers.PC, registers.SP);
             break;
         case INC_ADHL_OP:
-            INC_ADHL(PC, RAM, H, L, F);
+            INC_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case DEC_ADHL_OP:
-            DEC_ADHL(PC, RAM, H, L, F);
+            DEC_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case LD_ADHL_8_OP:
-            LD_ADHL_8(PC, RAM, H, L);
+            LD_ADHL_8(registers.PC, RAM, registers.H, registers.L);
             break;
         case SCF_OP:
-            SCF(PC, F);
+            SCF(registers.PC, registers.F);
             break;
         case JR_C_8_OP:
-            JR_C_8(PC, F, RAM);
-            if ((F & CARRY_FLAG) != 0) {
+            JR_C_8(registers.PC, registers.F, RAM);
+            if ((registers.F & CARRY_FLAG) != 0) {
                 complement = 1;
             }
             break;
         case ADD_HL_SP_OP:
-            ADD_HL_SP(PC, H, L, SP, F);
+            ADD_HL_SP(registers.PC, registers.H, registers.L, registers.SP, registers.F);
             break;
         case LD_A_ADHLM_OP:
-            LD_A_ADHL_D(PC, RAM, H, L, A);
+            LD_A_ADHL_D(registers.PC, RAM, registers.H, registers.L, registers.A);
             break;
         case DEC_SP_OP:
-            DEC_SP(PC, SP);
+            DEC_SP(registers.PC, registers.SP);
             break;
         case INC_A_OP:
-            INC_R8(PC, A, F);
+            INC_R8(registers.PC, registers.A, registers.F);
             break;
         case DEC_A_OP:
-            DEC_R8(PC, A, F);
+            DEC_R8(registers.PC, registers.A, registers.F);
             break;
         case LD_A_8_OP:
-            LD_R8_8(PC, A, RAM);
+            LD_R8_8(registers.PC, registers.A, RAM);
             break;
         case CCF_OP:
-            CCF(PC, F);
+            CCF(registers.PC, registers.F);
             break;
         case LD_B_B_OP:
-            LD_R8_R8(PC, B, B);
+            LD_R8_R8(registers.PC, registers.B, registers.B);
             break;
         case LD_B_C_OP:
-            LD_R8_R8(PC, B, C);
+            LD_R8_R8(registers.PC, registers.B, registers.C);
             break;
         case LD_B_D_OP:
-            LD_R8_R8(PC, B, D);
+            LD_R8_R8(registers.PC, registers.B, registers.D);
             break;
         case LD_B_E_OP:
-            LD_R8_R8(PC, B, E);
+            LD_R8_R8(registers.PC, registers.B, registers.E);
             break;
         case LD_B_H_OP:
-            LD_R8_R8(PC, B, H);
+            LD_R8_R8(registers.PC, registers.B, registers.H);
             break;
         case LD_B_L_OP:
-            LD_R8_R8(PC, B, L);
+            LD_R8_R8(registers.PC, registers.B, registers.L);
             break;
         case LD_B_ADHL_OP:
-            LD_R8_ADR16(PC, B, RAM, H, L);
+            LD_R8_ADR16(registers.PC, registers.B, RAM, registers.H, registers.L);
             break;
         case LD_B_A_OP:
-            LD_R8_R8(PC, B, A);
+            LD_R8_R8(registers.PC, registers.B, registers.A);
             break;
         case LD_C_B_OP:
-            LD_R8_R8(PC, C, B);
+            LD_R8_R8(registers.PC, registers.C, registers.B);
             break;
         case LD_C_C_OP:
-            LD_R8_R8(PC, C, C);
+            LD_R8_R8(registers.PC, registers.C, registers.C);
             break;
         case LD_C_D_OP:
-            LD_R8_R8(PC, C, D);
+            LD_R8_R8(registers.PC, registers.C, registers.D);
             break;
         case LD_C_E_OP:
-            LD_R8_R8(PC, C, E);
+            LD_R8_R8(registers.PC, registers.C, registers.E);
             break;
         case LD_C_H_OP:
-            LD_R8_R8(PC, C, H);
+            LD_R8_R8(registers.PC, registers.C, registers.H);
             break;
         case LD_C_L_OP:
-            LD_R8_R8(PC, C, L);
+            LD_R8_R8(registers.PC, registers.C, registers.L);
             break;
         case LD_C_ADHL_OP:
-            LD_R8_ADR16(PC, C, RAM, H, L);
+            LD_R8_ADR16(registers.PC, registers.C, RAM, registers.H, registers.L);
             break;
         case LD_C_A_OP:
-            LD_R8_R8(PC, C, A);
+            LD_R8_R8(registers.PC, registers.C, registers.A);
             break;
         case LD_D_B_OP:
-            LD_R8_R8(PC, D, B);
+            LD_R8_R8(registers.PC, registers.D, registers.B);
             break;
         case LD_D_C_OP:
-            LD_R8_R8(PC, D, C);
+            LD_R8_R8(registers.PC, registers.D, registers.C);
             break;
         case LD_D_D_OP:
-            LD_R8_R8(PC, D, D);
+            LD_R8_R8(registers.PC, registers.D, registers.D);
             break;
         case LD_D_E_OP:
-            LD_R8_R8(PC, D, E);
+            LD_R8_R8(registers.PC, registers.D, registers.E);
             break;
         case LD_D_H_OP:
-            LD_R8_R8(PC, D, H);
+            LD_R8_R8(registers.PC, registers.D, registers.H);
             break;
         case LD_D_L_OP:
-            LD_R8_R8(PC, D, L);
+            LD_R8_R8(registers.PC, registers.D, registers.L);
             break;
         case LD_D_ADHL_OP:
-            LD_R8_ADR16(PC, D, RAM, H, L);
+            LD_R8_ADR16(registers.PC, registers.D, RAM, registers.H, registers.L);
             break;
         case LD_D_A_OP:
-            LD_R8_R8(PC, D, A);
+            LD_R8_R8(registers.PC, registers.D, registers.A);
             break;
         case LD_E_B_OP:
-            LD_R8_R8(PC, E, B);
+            LD_R8_R8(registers.PC, registers.E, registers.B);
             break;
         case LD_E_C_OP:
-            LD_R8_R8(PC, E, C);
+            LD_R8_R8(registers.PC, registers.E, registers.C);
             break;
         case LD_E_D_OP:
-            LD_R8_R8(PC, E, D);
+            LD_R8_R8(registers.PC, registers.E, registers.D);
             break;
         case LD_E_E_OP:
-            LD_R8_R8(PC, E, E);
+            LD_R8_R8(registers.PC, registers.E, registers.E);
             break;
         case LD_E_H_OP:
-            LD_R8_R8(PC, E, H);
+            LD_R8_R8(registers.PC, registers.E, registers.H);
             break;
         case LD_E_L_OP:
-            LD_R8_R8(PC, E, L);
+            LD_R8_R8(registers.PC, registers.E, registers.L);
             break;
         case LD_E_ADHL_OP:
-            LD_R8_ADR16(PC, E, RAM, H, L);
+            LD_R8_ADR16(registers.PC, registers.E, RAM, registers.H, registers.L);
             break;
         case LD_E_A_OP:
-            LD_R8_R8(PC, E, A);
+            LD_R8_R8(registers.PC, registers.E, registers.A);
             break;
         case LD_H_B_OP:
-            LD_R8_R8(PC, H, B);
+            LD_R8_R8(registers.PC, registers.H, registers.B);
             break;
         case LD_H_C_OP:
-            LD_R8_R8(PC, H, C);
+            LD_R8_R8(registers.PC, registers.H, registers.C);
             break;
         case LD_H_D_OP:
-            LD_R8_R8(PC, H, D);
+            LD_R8_R8(registers.PC, registers.H, registers.D);
             break;
         case LD_H_E_OP:
-            LD_R8_R8(PC, H, E);
+            LD_R8_R8(registers.PC, registers.H, registers.E);
             break;
         case LD_H_H_OP:
-            LD_R8_R8(PC, H, H);
+            LD_R8_R8(registers.PC, registers.H, registers.H);
             break;
         case LD_H_L_OP:
-            LD_R8_R8(PC, H, L);
+            LD_R8_R8(registers.PC, registers.H, registers.L);
             break;
         case LD_H_ADHL_OP:
-            LD_R8_ADR16(PC, H, RAM, H, L);
+            LD_R8_ADR16(registers.PC, registers.H, RAM, registers.H, registers.L);
             break;
         case LD_H_A_OP:
-            LD_R8_R8(PC, H, A);
+            LD_R8_R8(registers.PC, registers.H, registers.A);
             break;
         case LD_L_B_OP:
-            LD_R8_R8(PC, L, B);
+            LD_R8_R8(registers.PC, registers.L, registers.B);
             break;
         case LD_L_C_OP:
-            LD_R8_R8(PC, L, C);
+            LD_R8_R8(registers.PC, registers.L, registers.C);
             break;
         case LD_L_D_OP:
-            LD_R8_R8(PC, L, D);
+            LD_R8_R8(registers.PC, registers.L, registers.D);
             break;
         case LD_L_E_OP:
-            LD_R8_R8(PC, L, E);
+            LD_R8_R8(registers.PC, registers.L, registers.E);
             break;
         case LD_L_H_OP:
-            LD_R8_R8(PC, L, H);
+            LD_R8_R8(registers.PC, registers.L, registers.H);
             break;
         case LD_L_L_OP:
-            LD_R8_R8(PC, L, L);
+            LD_R8_R8(registers.PC, registers.L, registers.L);
             break;
         case LD_L_ADHL_OP:
-            LD_R8_ADR16(PC, L, RAM, H, L);
+            LD_R8_ADR16(registers.PC, registers.L, RAM, registers.H, registers.L);
             break;
         case LD_L_A_OP:
-            LD_R8_R8(PC, L, A);
+            LD_R8_R8(registers.PC, registers.L, registers.A);
             break;
         case LD_ADHL_B_OP:
-            LD_ADHL_R8(PC, RAM, H, L, B);
+            LD_ADHL_R8(registers.PC, RAM, registers.H, registers.L, registers.B);
             break;
         case LD_ADHL_C_OP:
-            LD_ADHL_R8(PC, RAM, H, L, C);
+            LD_ADHL_R8(registers.PC, RAM, registers.H, registers.L, registers.C);
             break;
         case LD_ADHL_D_OP:
-            LD_ADHL_R8(PC, RAM, H, L, D);
+            LD_ADHL_R8(registers.PC, RAM, registers.H, registers.L, registers.D);
             break;
         case LD_ADHL_E_OP:
-            LD_ADHL_R8(PC, RAM, H, L, E);
+            LD_ADHL_R8(registers.PC, RAM, registers.H, registers.L, registers.E);
             break;
         case LD_ADHL_H_OP:
-            LD_ADHL_R8(PC, RAM, H, L, H);
+            LD_ADHL_R8(registers.PC, RAM, registers.H, registers.L, registers.H);
             break;
         case LD_ADHL_L_OP:
-            LD_ADHL_R8(PC, RAM, H, L, L);
+            LD_ADHL_R8(registers.PC, RAM, registers.H, registers.L, registers.L);
             break;
         case HALT_OP:
-            HALT(PC);
+            HALT(registers.PC);
             break;
         case LD_ADHL_A_OP:
-            LD_ADHL_R8(PC, RAM, H, L, A);
+            LD_ADHL_R8(registers.PC, RAM, registers.H, registers.L, registers.A);
             break;
         case LD_A_B_OP:
-            LD_R8_R8(PC, A, B);
+            LD_R8_R8(registers.PC, registers.A, registers.B);
             break;
         case LD_A_C_OP:
-            LD_R8_R8(PC, A, C);
+            LD_R8_R8(registers.PC, registers.A, registers.C);
             break;
         case LD_A_D_OP:
-            LD_R8_R8(PC, A, D);
+            LD_R8_R8(registers.PC, registers.A, registers.D);
             break;
         case LD_A_E_OP:
-            LD_R8_R8(PC, A, E);
+            LD_R8_R8(registers.PC, registers.A, registers.E);
             break;
         case LD_A_H_OP:
-            LD_R8_R8(PC, A, H);
+            LD_R8_R8(registers.PC, registers.A, registers.H);
             break;
         case LD_A_L_OP:
-            LD_R8_R8(PC, A, L);
+            LD_R8_R8(registers.PC, registers.A, registers.L);
             break;
         case LD_A_ADHL_OP:
-            LD_R8_ADR16(PC, A, RAM, H, L);
+            LD_R8_ADR16(registers.PC, registers.A, RAM, registers.H, registers.L);
             break;
         case LD_A_A_OP:
-            LD_R8_R8(PC, A, A);
+            LD_R8_R8(registers.PC, registers.A, registers.A);
             break;
         case ADD_A_B_OP:
-            ADD_A_8(PC, A, RAM, F);
+            ADD_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case ADD_A_C_OP:
-            ADD_R_R(PC, A, C, F);
+            ADD_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case ADD_A_D_OP:
-            ADD_R_R(PC, A, D, F);
+            ADD_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case ADD_A_E_OP:
-            ADD_R_R(PC, A, E, F);
+            ADD_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case ADD_A_H_OP:
-            ADD_R_R(PC, A, H, F);
+            ADD_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case ADD_A_L_OP:
-            ADD_R_R(PC, A, L, F);
+            ADD_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case ADD_A_ADHL_OP:
-            ADD_R_ADHL(PC, A, RAM, H, L, F);
+            ADD_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case ADD_A_A_OP:
-            ADD_R_R(PC, A, A, F);
+            ADD_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case ADC_A_B_OP:
-            ADC_R_R(PC, A, B, F);
+            ADC_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case ADC_A_C_OP:
-            ADC_R_R(PC, A, C, F);
+            ADC_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case ADC_A_D_OP:
-            ADC_R_R(PC, A, D, F);
+            ADC_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case ADC_A_E_OP:
-            ADC_R_R(PC, A, E, F);
+            ADC_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case ADC_A_H_OP:
-            ADC_R_R(PC, A, H, F);
+            ADC_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case ADC_A_L_OP:
-            ADC_R_R(PC, A, L, F);
+            ADC_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case ADC_A_ADHL_OP:
-            ADC_R_ADHL(PC, A, RAM, H, L, F);
+            ADC_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case ADC_A_A_OP:
-            ADC_R_R(PC, A, A, F);
+            ADC_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case SUB_A_B_OP:
-            SUB_R_R(PC, A, B, F);
+            SUB_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case SUB_A_C_OP:
-            SUB_R_R(PC, A, C, F);
+            SUB_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case SUB_A_D_OP:
-            SUB_R_R(PC, A, D, F);
+            SUB_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case SUB_A_E_OP:
-            SUB_R_R(PC, A, E, F);
+            SUB_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case SUB_A_H_OP:
-            SUB_R_R(PC, A, H, F);
+            SUB_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case SUB_A_L_OP:
-            SUB_R_R(PC, A, L, F);
+            SUB_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case SUB_A_ADHL_OP:
-            SUB_R_ADHL(PC, A, RAM, H, L, F);
+            SUB_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case SUB_A_A_OP:
-            SUB_R_R(PC, A, A, F);
+            SUB_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case SBC_A_B_OP:
-            SBC_R_R(PC, A, B, F);
+            SBC_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case SBC_A_C_OP:
-            SBC_R_R(PC, A, C, F);
+            SBC_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case SBC_A_D_OP:
-            SBC_R_R(PC, A, D, F);
+            SBC_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case SBC_A_E_OP:
-            SBC_R_R(PC, A, E, F);
+            SBC_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case SBC_A_H_OP:
-            SBC_R_R(PC, A, H, F);
+            SBC_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case SBC_A_L_OP:
-            SBC_R_R(PC, A, L, F);
+            SBC_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case SBC_A_ADHL_OP:
-            SBC_R_ADHL(PC, A, RAM, H, L, F);
+            SBC_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case SBC_A_A_OP:
-            SBC_R_R(PC, A, A, F);
+            SBC_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case AND_A_B_OP:
-            AND_R_R(PC, A, B, F);
+            AND_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case AND_A_C_OP:
-            AND_R_R(PC, A, C, F);
+            AND_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case AND_A_D_OP:
-            AND_R_R(PC, A, D, F);
+            AND_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case AND_A_E_OP:
-            AND_R_R(PC, A, E, F);
+            AND_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case AND_A_H_OP:
-            AND_R_R(PC, A, H, F);
+            AND_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case AND_A_L_OP:
-            AND_R_R(PC, A, L, F);
+            AND_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case AND_A_ADHL_OP:
-            AND_R_ADHL(PC, A, RAM, H, L, F);
+            AND_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case AND_A_A_OP:
-            AND_R_R(PC, A, A, F);
+            AND_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case XOR_A_B_OP:
-            XOR_R_R(PC, A, B, F);
+            XOR_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case XOR_A_C_OP:
-            XOR_R_R(PC, A, C, F);
+            XOR_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case XOR_A_D_OP:
-            XOR_R_R(PC, A, D, F);
+            XOR_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case XOR_A_E_OP:
-            XOR_R_R(PC, A, E, F);
+            XOR_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case XOR_A_H_OP:
-            XOR_R_R(PC, A, H, F);
+            XOR_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case XOR_A_L_OP:
-            XOR_R_R(PC, A, L, F);
+            XOR_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case XOR_A_ADHL_OP:
-            XOR_R_ADHL(PC, A, RAM, H, L, F);
+            XOR_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case XOR_A_A_OP:
-            XOR_R_R(PC, A, A, F);
+            XOR_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case OR_A_B_OP:
-            OR_R_R(PC, A, B, F);
+            OR_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case OR_A_C_OP:
-            OR_R_R(PC, A, C, F);
+            OR_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case OR_A_D_OP:
-            OR_R_R(PC, A, D, F);
+            OR_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case OR_A_E_OP:
-            OR_R_R(PC, A, E, F);
+            OR_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case OR_A_H_OP:
-            OR_R_R(PC, A, H, F);
+            OR_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case OR_A_L_OP:
-            OR_R_R(PC, A, L, F);
+            OR_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case OR_A_ADHL_OP:
-            OR_R_ADHL(PC, A, RAM, H, L, F);
+            OR_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case OR_A_A_OP:
-            OR_R_R(PC, A, A, F);
+            OR_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case CP_A_B_OP:
-            CP_R_R(PC, A, B, F);
+            CP_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case CP_A_C_OP:
-            CP_R_R(PC, A, C, F);
+            CP_R_R(registers.PC, registers.A, registers.C, registers.F);
             break;
         case CP_A_D_OP:
-            CP_R_R(PC, A, D, F);
+            CP_R_R(registers.PC, registers.A, registers.D, registers.F);
             break;
         case CP_A_E_OP:
-            CP_R_R(PC, A, E, F);
+            CP_R_R(registers.PC, registers.A, registers.E, registers.F);
             break;
         case CP_A_H_OP:
-            CP_R_R(PC, A, H, F);
+            CP_R_R(registers.PC, registers.A, registers.H, registers.F);
             break;
         case CP_A_L_OP:
-            CP_R_R(PC, A, L, F);
+            CP_R_R(registers.PC, registers.A, registers.L, registers.F);
             break;
         case CP_A_ADHL_OP:
-            CP_R_ADHL(PC, A, RAM, H, L, F);
+            CP_R_ADHL(registers.PC, registers.A, RAM, registers.H, registers.L, registers.F);
             break;
         case CP_A_A_OP:
-            CP_R_R(PC, A, A, F);
+            CP_R_R(registers.PC, registers.A, registers.A, registers.F);
             break;
         case RET_NZ_OP:
-            RET_NZ(PC, RAM, SP, F);
-            if ((F & ZERO_FLAG) == 0) {
+            RET_NZ(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & ZERO_FLAG) == 0) {
                 complement = 3;
             }
             break;
         case POP_BC_OP:
-            POP_R16(PC, RAM, SP, B, C);
+            POP_R16(registers.PC, RAM, registers.SP, registers.B, registers.C);
             break;
         case JP_NZ_16_OP:
-            JP_NZ_16(PC, RAM, F);
-            if ((F & ZERO_FLAG) == 0) {
+            JP_NZ_16(registers.PC, RAM, registers.F);
+            if ((registers.F & ZERO_FLAG) == 0) {
                 complement = 1;
             }
             break;
         case JP_16_OP:
-            JP_16(PC, RAM);
+            JP_16(registers.PC, RAM);
             break;
         case CALL_NZ_16_OP:
-            CALL_NZ_16(PC, RAM, SP, F);
-            if ((F & ZERO_FLAG) == 0) {
+            CALL_NZ_16(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & ZERO_FLAG) == 0) {
                 complement = 3;
             }
             break;
         case PUSH_BC_OP:
-            PUSH_R16(PC, RAM, SP, B, C);
+            PUSH_R16(registers.PC, RAM, registers.SP, registers.B, registers.C);
             break;
         case ADD_A_8_OP:
-            ADD_A_8(PC, A, RAM, F);
+            ADD_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_00_OP:
-            RST_AD(PC, RAM, SP, 0x00);
+            RST_AD(registers.PC, RAM, registers.SP, 0x00);
             break;
         case RET_Z_OP:
-            RET_Z(PC, RAM, SP, F);
-            if ((F & ZERO_FLAG) != 0) {
+            RET_Z(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & ZERO_FLAG) != 0) {
                 complement = 3;
             }
             break;
         case RET_OP:
-            RET(PC, RAM, SP);
+            RET(registers.PC, RAM, registers.SP);
             break;
         case JP_Z_16_OP:
-            JP_Z_16(PC, RAM, F);
-            if ((F & ZERO_FLAG) != 0) {
+            JP_Z_16(registers.PC, RAM, registers.F);
+            if ((registers.F & ZERO_FLAG) != 0) {
                 complement = 1;
             }
             break;
         case PREFIX_OP:
-            PC++;
-            EPR(A, F, B, C, D, E, H, L, SP, PC, RAM, cycles_counter);
+            registers.PC++;
+            EPR(registers, RAM);
             break;
         case CALL_Z_16_OP:
-            CALL_Z_16(PC, RAM, SP, F);
-            if ((F & ZERO_FLAG) != 0) {
+            CALL_Z_16(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & ZERO_FLAG) != 0) {
                 complement = 3;
             }
             break;
         case CALL_16_OP:
-            CALL_16(PC, RAM, SP);
+            CALL_16(registers.PC, RAM, registers.SP);
             break;
         case ADC_A_8_OP:
-            ADC_A_8(PC, A, RAM, F);
+            ADC_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_08_OP:
-            RST_AD(PC, RAM, SP, 0x08);
+            RST_AD(registers.PC, RAM, registers.SP, 0x08);
             break;
         case RET_NC_OP:
-            RET_NC(PC, RAM, SP, F);
-            if ((F & CARRY_FLAG) == 0) {
+            RET_NC(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & CARRY_FLAG) == 0) {
                 complement = 3;
             }
             break;
         case POP_DE_OP:
-            POP_R16(PC, RAM, SP, D, E);
+            POP_R16(registers.PC, RAM, registers.SP, registers.D, registers.E);
             break;
         case JP_NC_16_OP:
-            JP_NC_16(PC, RAM, F);
-            if ((F & CARRY_FLAG) == 0) {
+            JP_NC_16(registers.PC, RAM, registers.F);
+            if ((registers.F & CARRY_FLAG) == 0) {
                 complement = 1;
             }
             break;
         case CALL_NC_16_OP:
-            CALL_NC_16(PC, RAM, SP, F);
-            if ((F & CARRY_FLAG) == 0) {
+            CALL_NC_16(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & CARRY_FLAG) == 0) {
                 complement = 3;
             }
             break;
         case PUSH_DE_OP:
-            PUSH_R16(PC, RAM, SP, D, E);
+            PUSH_R16(registers.PC, RAM, registers.SP, registers.D, registers.E);
             break;
         case SUB_A_8_OP:
-            SUB_A_8(PC, A, RAM, F);
+            SUB_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_10_OP:
-            RST_AD(PC, RAM, SP, 0x10);
+            RST_AD(registers.PC, RAM, registers.SP, 0x10);
             break;
         case RET_C_OP:
-            RET_C(PC, RAM, SP, F);
-            if ((F & CARRY_FLAG) != 0) {
+            RET_C(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & CARRY_FLAG) != 0) {
                 complement = 3;
             }
             break;
         case RETI_OP:
-            RETI(PC);
+            RETI(registers.PC, RAM, registers.SP, registers.IME);
             break;
         case JP_C_16_OP:
-            JP_C_16(PC, RAM, F);
-            if ((F & CARRY_FLAG) != 0) {
+            JP_C_16(registers.PC, RAM, registers.F);
+            if ((registers.F & CARRY_FLAG) != 0) {
                 complement = 1;
             }
             break;
         case CALL_C_16_OP:
-            CALL_C_16(PC, RAM, SP, F);
-            if ((F & CARRY_FLAG) != 0) {
+            CALL_C_16(registers.PC, RAM, registers.SP, registers.F);
+            if ((registers.F & CARRY_FLAG) != 0) {
                 complement = 3;
             }
             break;
         case SBC_A_8_OP:
-            SBC_A_8(PC, A, RAM, F);
+            SBC_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_18_OP:
-            RST_AD(PC, RAM, SP, 0x18);
+            RST_AD(registers.PC, RAM, registers.SP, 0x18);
             break;
         case LDH_AD8_A_OP:
-            LDH_AD8_A(PC, RAM, A);
+            LDH_AD8_A(registers.PC, RAM, registers.A);
             break;
         case POP_HL_OP:
-            POP_R16(PC, RAM, SP, H, L);
+            POP_R16(registers.PC, RAM, registers.SP, registers.H, registers.L);
             break;
         case LDH_ADC_A_OP:
-            LDH_ADC_A(PC, RAM, C, A);
+            LDH_ADC_A(registers.PC, RAM, registers.C, registers.A);
             break;
         case PUSH_HL_OP:
-            PUSH_R16(PC, RAM, SP, H, L);
+            PUSH_R16(registers.PC, RAM, registers.SP, registers.H, registers.L);
             break;
         case AND_A_8_OP:
-            AND_A_8(PC, A, RAM, F);
+            AND_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_20_OP:
-            RST_AD(PC, RAM, SP, 0x20);
+            RST_AD(registers.PC, RAM, registers.SP, 0x20);
             break;
         case ADD_SP_8_OP:
-            ADD_SP_8(PC, SP, RAM);
+            ADD_SP_8(registers.PC, registers.SP, RAM);
             break;
         case JP_HL_OP:
-            JP_HL(PC, H, L);
+            JP_HL(registers.PC, registers.H, registers.L);
             break;
         case LD_AD16_A_OP:
-            LD_AD16_A(PC, RAM, A);
+            LD_AD16_A(registers.PC, RAM, registers.A);
             break;
         case XOR_A_8_OP:
-            XOR_A_8(PC, A, RAM, F);
+            XOR_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_28_OP:
-            RST_AD(PC, RAM, SP, 0x28);
+            RST_AD(registers.PC, RAM, registers.SP, 0x28);
             break;
         case LDH_A_AD8_OP:
-            LDH_A_AD8(PC, A, RAM);
+            LDH_A_AD8(registers.PC, registers.A, RAM);
             break;
         case POP_AF_OP:
-            POP_R16(PC, RAM, SP, A, F);
+            POP_R16(registers.PC, RAM, registers.SP, registers.A, registers.F);
             break;
         case LDH_A_ADC_OP:
-            LDH_A_ADC(PC, A, RAM, C);
+            LDH_A_ADC(registers.PC, registers.A, RAM, registers.C);
             break;
         case DI_OP:
-            std::cout << "Should execute DI instruction" << std::endl;
-            PC++;
+            DI(registers.PC, registers.IME);
             break;
         case PUSH_AF_OP:
-            PUSH_R16(PC, RAM, SP, A, F);
+            PUSH_R16(registers.PC, RAM, registers.SP, registers.A, registers.F);
             break;
         case OR_A_8_OP:
-            OR_A_8(PC, A, RAM, F);
+            OR_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_30_OP:
-            RST_AD(PC, RAM, SP, 0x30);
+            RST_AD(registers.PC, RAM, registers.SP, 0x30);
             break;
         case LD_HL_SP8_OP:
-            LD_HL_SP8(PC, H, L, SP, RAM, F);
+            LD_HL_SP8(registers.PC, registers.H, registers.L, registers.SP, RAM, registers.F);
             break;
         case LD_SP_HL_OP:
-            LD_SP_HL(PC, SP, H, L);
+            LD_SP_HL(registers.PC, registers.SP, registers.H, registers.L);
             break;
         case LD_A_AD16_OP:
-            LD_A_AD16(PC, A, RAM);
+            LD_A_AD16(registers.PC, registers.A, RAM);
             break;
         case EI_OP:
-            std::cout << "Should execute EI instruction" << std::endl;
-            PC++;
+            EI(registers.PC, registers.IME);
             break;
         case CP_A_8_OP:
-            CP_A_8(PC, A, RAM, F);
+            CP_A_8(registers.PC, registers.A, RAM, registers.F);
             break;
         case RST_38_OP:
-            RST_AD(PC, RAM, SP, 0x38);
+            RST_AD(registers.PC, RAM, registers.SP, 0x38);
             break;
         default:
             std::cout << "No correspondence found" << std::endl;
-            PC++;
+            registers.PC++;
             break;
     }
 
-    cycles_counter += complement;
+    registers.cycles_counter += complement;
 }
 
-void EPR(uint8_t& A, uint8_t& F, uint8_t& B, uint8_t& C, uint8_t& D, uint8_t& E, uint8_t& H, uint8_t& L, uint16_t& SP, uint16_t& PC, std::vector<uint8_t>& RAM, int& cycles_counter) {
+void EPR(Registers& registers, std::vector<uint8_t>& RAM) {
 
-    cycles_counter += prefixed_cycles[RAM[PC]];
+    registers.cycles_counter += prefixed_cycles[RAM[registers.PC]];
 
-    switch (RAM[PC]) {
+    switch (RAM[registers.PC]) {
         case RLC_B_OP:
-            RLC_R(PC, B, F);
+            RLC_R(registers.PC, registers.B, registers.F);
             break;
         case RLC_C_OP:
-            RLC_R(PC, C, F);
+            RLC_R(registers.PC, registers.C, registers.F);
             break;
         case RLC_D_OP:
-            RLC_R(PC, D, F);
+            RLC_R(registers.PC, registers.D, registers.F);
             break;
         case RLC_E_OP:
-            RLC_R(PC, E, F);
+            RLC_R(registers.PC, registers.E, registers.F);
             break;
         case RLC_H_OP:
-            RLC_R(PC, H, F);
+            RLC_R(registers.PC, registers.H, registers.F);
             break;
         case RLC_L_OP:
-            RLC_R(PC, L, F);
+            RLC_R(registers.PC, registers.L, registers.F);
             break;
         case RLC_ADHL_OP:
-            RLC_ADHL(PC, RAM, H, L, F);
+            RLC_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case RLC_A_OP:
-            RLC_R(PC, A, F);
+            RLC_R(registers.PC, registers.A, registers.F);
             break;
         case RRC_B_OP:
-            RRC_R(PC, B, F);
+            RRC_R(registers.PC, registers.B, registers.F);
             break;
         case RRC_C_OP:
-            RRC_R(PC, C, F);
+            RRC_R(registers.PC, registers.C, registers.F);
             break;
         case RRC_D_OP:
-            RRC_R(PC, D, F);
+            RRC_R(registers.PC, registers.D, registers.F);
             break;
         case RRC_E_OP:
-            RRC_R(PC, E, F);
+            RRC_R(registers.PC, registers.E, registers.F);
             break;
         case RRC_H_OP:
-            RRC_R(PC, H, F);
+            RRC_R(registers.PC, registers.H, registers.F);
             break;
         case RRC_L_OP:
-            RRC_R(PC, L, F);
+            RRC_R(registers.PC, registers.L, registers.F);
             break;
         case RRC_ADHL_OP:
-            RRC_ADHL(PC, RAM, H, L, F);
+            RRC_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case RRC_A_OP:
-            RRC_R(PC, A, F);
+            RRC_R(registers.PC, registers.A, registers.F);
             break;
         case RL_B_OP:
-            RL_R(PC, B, F);
+            RL_R(registers.PC, registers.B, registers.F);
             break;
         case RL_C_OP:
-            RL_R(PC, C, F);
+            RL_R(registers.PC, registers.C, registers.F);
             break;
         case RL_D_OP:
-            RL_R(PC, D, F);
+            RL_R(registers.PC, registers.D, registers.F);
             break;
         case RL_E_OP:
-            RL_R(PC, E, F);
+            RL_R(registers.PC, registers.E, registers.F);
             break;
         case RL_H_OP:
-            RL_R(PC, H, F);
+            RL_R(registers.PC, registers.H, registers.F);
             break;
         case RL_L_OP:
-            RL_R(PC, L, F);
+            RL_R(registers.PC, registers.L, registers.F);
             break;
         case RL_ADHL_OP:
-            RL_ADHL(PC, RAM, H, L, F);
+            RL_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case RL_A_OP:
-            RL_R(PC, A, F);
+            RL_R(registers.PC, registers.A, registers.F);
             break;
         case RR_B_OP:
-            RR_R(PC, B, F);
+            RR_R(registers.PC, registers.B, registers.F);
             break;
         case RR_C_OP:
-            RR_R(PC, C, F);
+            RR_R(registers.PC, registers.C, registers.F);
             break;
         case RR_D_OP:
-            RR_R(PC, D, F);
+            RR_R(registers.PC, registers.D, registers.F);
             break;
         case RR_E_OP:
-            RR_R(PC, E, F);
+            RR_R(registers.PC, registers.E, registers.F);
             break;
         case RR_H_OP:
-            RR_R(PC, H, F);
+            RR_R(registers.PC, registers.H, registers.F);
             break;
         case RR_L_OP:
-            RR_R(PC, L, F);
+            RR_R(registers.PC, registers.L, registers.F);
             break;
         case RR_ADHL_OP:
-            RR_ADHL(PC, RAM, H, L, F);
+            RR_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case RR_A_OP:
-            RR_R(PC, A, F);
+            RR_R(registers.PC, registers.A, registers.F);
             break;
         case SLA_B_OP:
-            SLA_R(PC, B, F);
+            SLA_R(registers.PC, registers.B, registers.F);
             break;
         case SLA_C_OP:
-            SLA_R(PC, C, F);
+            SLA_R(registers.PC, registers.C, registers.F);
             break;
         case SLA_D_OP:
-            SLA_R(PC, D, F);
+            SLA_R(registers.PC, registers.D, registers.F);
             break;
         case SLA_E_OP:
-            SLA_R(PC, E, F);
+            SLA_R(registers.PC, registers.E, registers.F);
             break;
         case SLA_H_OP:
-            SLA_R(PC, H, F);
+            SLA_R(registers.PC, registers.H, registers.F);
             break;
         case SLA_L_OP:
-            SLA_R(PC, L, F);
+            SLA_R(registers.PC, registers.L, registers.F);
             break;
         case SLA_ADHL_OP:
-            SLA_ADHL(PC, RAM, H, L, F);
+            SLA_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case SLA_A_OP:
-            SLA_R(PC, A, F);
+            SLA_R(registers.PC, registers.A, registers.F);
             break;
         case SRA_B_OP:
-            SRA_R(PC, B, F);
+            SRA_R(registers.PC, registers.B, registers.F);
             break;
         case SRA_C_OP:
-            SRA_R(PC, C, F);
+            SRA_R(registers.PC, registers.C, registers.F);
             break;
         case SRA_D_OP:
-            SRA_R(PC, D, F);
+            SRA_R(registers.PC, registers.D, registers.F);
             break;
         case SRA_E_OP:
-            SRA_R(PC, E, F);
+            SRA_R(registers.PC, registers.E, registers.F);
             break;
         case SRA_H_OP:
-            SRA_R(PC, H, F);
+            SRA_R(registers.PC, registers.H, registers.F);
             break;
         case SRA_L_OP:
-            SRA_R(PC, L, F);
+            SRA_R(registers.PC, registers.L, registers.F);
             break;
         case SRA_ADHL_OP:
-            SRA_ADHL(PC, RAM, H, L, F);
+            SRA_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case SRA_A_OP:
-            SRA_R(PC, A, F);
+            SRA_R(registers.PC, registers.A, registers.F);
             break;
         case SWAP_B_OP:
-            SWAP_R(PC, B, F);
+            SWAP_R(registers.PC, registers.B, registers.F);
             break;
         case SWAP_C_OP:
-            SWAP_R(PC, C, F);
+            SWAP_R(registers.PC, registers.C, registers.F);
             break;
         case SWAP_D_OP:
-            SWAP_R(PC, D, F);
+            SWAP_R(registers.PC, registers.D, registers.F);
             break;
         case SWAP_E_OP:
-            SWAP_R(PC, E, F);
+            SWAP_R(registers.PC, registers.E, registers.F);
             break;
         case SWAP_H_OP:
-            SWAP_R(PC, H, F);
+            SWAP_R(registers.PC, registers.H, registers.F);
             break;
         case SWAP_L_OP:
-            SWAP_R(PC, L, F);
+            SWAP_R(registers.PC, registers.L, registers.F);
             break;
         case SWAP_ADHL_OP:
-            SWAP_ADHL(PC, RAM, H, L, F);
+            SWAP_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case SWAP_A_OP:
-            SWAP_R(PC, A, F);
+            SWAP_R(registers.PC, registers.A, registers.F);
             break;
          case SRL_B_OP:
-            SRL_R(PC, B, F);
+            SRL_R(registers.PC, registers.B, registers.F);
             break;
         case SRL_C_OP:
-            SRL_R(PC, C, F);
+            SRL_R(registers.PC, registers.C, registers.F);
             break;
         case SRL_D_OP:
-            SRL_R(PC, D, F);
+            SRL_R(registers.PC, registers.D, registers.F);
             break;
         case SRL_E_OP:
-            SRL_R(PC, E, F);
+            SRL_R(registers.PC, registers.E, registers.F);
             break;
         case SRL_H_OP:
-            SRL_R(PC, H, F);
+            SRL_R(registers.PC, registers.H, registers.F);
             break;
         case SRL_L_OP:
-            SRL_R(PC, L, F);
+            SRL_R(registers.PC, registers.L, registers.F);
             break;
         case SRL_ADHL_OP:
-            SRL_ADHL(PC, RAM, H, L, F);
+            SRL_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F);
             break;
         case SRL_A_OP:
-            SRL_R(PC, A, F);
+            SRL_R(registers.PC, registers.A, registers.F);
             break;
         case BIT_0_B_OP:
-            BIT_N_R(PC, B, F, 0);
+            BIT_N_R(registers.PC, registers.B, registers.F, 0);
             break;
         case BIT_0_C_OP:
-            BIT_N_R(PC, C, F, 0);
+            BIT_N_R(registers.PC, registers.C, registers.F, 0);
             break;
         case BIT_0_D_OP:
-            BIT_N_R(PC, D, F, 0);
+            BIT_N_R(registers.PC, registers.D, registers.F, 0);
             break;
         case BIT_0_E_OP:
-            BIT_N_R(PC, E, F, 0);
+            BIT_N_R(registers.PC, registers.E, registers.F, 0);
             break;
         case BIT_0_H_OP:
-            BIT_N_R(PC, H, F, 0);
+            BIT_N_R(registers.PC, registers.H, registers.F, 0);
             break;
         case BIT_0_L_OP:
-            BIT_N_R(PC, L, F, 0);
+            BIT_N_R(registers.PC, registers.L, registers.F, 0);
             break;
         case BIT_0_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 0);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 0);
             break;
         case BIT_0_A_OP:
-            BIT_N_R(PC, A, F, 0);
+            BIT_N_R(registers.PC, registers.A, registers.F, 0);
             break;
         case BIT_1_B_OP:
-            BIT_N_R(PC, B, F, 1);
+            BIT_N_R(registers.PC, registers.B, registers.F, 1);
             break;
         case BIT_1_C_OP:
-            BIT_N_R(PC, C, F, 1);
+            BIT_N_R(registers.PC, registers.C, registers.F, 1);
             break;
         case BIT_1_D_OP:
-            BIT_N_R(PC, D, F, 1);
+            BIT_N_R(registers.PC, registers.D, registers.F, 1);
             break;
         case BIT_1_E_OP:
-            BIT_N_R(PC, E, F, 1);
+            BIT_N_R(registers.PC, registers.E, registers.F, 1);
             break;
         case BIT_1_H_OP:
-            BIT_N_R(PC, H, F, 1);
+            BIT_N_R(registers.PC, registers.H, registers.F, 1);
             break;
         case BIT_1_L_OP:
-            BIT_N_R(PC, L, F, 1);
+            BIT_N_R(registers.PC, registers.L, registers.F, 1);
             break;
         case BIT_1_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 1);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 1);
             break;
         case BIT_1_A_OP:
-            BIT_N_R(PC, A, F, 1);
+            BIT_N_R(registers.PC, registers.A, registers.F, 1);
             break;
         case BIT_2_B_OP:
-            BIT_N_R(PC, B, F, 2);
+            BIT_N_R(registers.PC, registers.B, registers.F, 2);
             break;
         case BIT_2_C_OP:
-            BIT_N_R(PC, C, F, 2);
+            BIT_N_R(registers.PC, registers.C, registers.F, 2);
             break;
         case BIT_2_D_OP:
-            BIT_N_R(PC, D, F, 2);
+            BIT_N_R(registers.PC, registers.D, registers.F, 2);
             break;
         case BIT_2_E_OP:
-            BIT_N_R(PC, E, F, 2);
+            BIT_N_R(registers.PC, registers.E, registers.F, 2);
             break;
         case BIT_2_H_OP:
-            BIT_N_R(PC, H, F, 2);
+            BIT_N_R(registers.PC, registers.H, registers.F, 2);
             break;
         case BIT_2_L_OP:
-            BIT_N_R(PC, L, F, 2);
+            BIT_N_R(registers.PC, registers.L, registers.F, 2);
             break;
         case BIT_2_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 2);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 2);
             break;
         case BIT_2_A_OP:
-            BIT_N_R(PC, A, F, 2);
+            BIT_N_R(registers.PC, registers.A, registers.F, 2);
             break;
         case BIT_3_B_OP:
-            BIT_N_R(PC, B, F, 3);
+            BIT_N_R(registers.PC, registers.B, registers.F, 3);
             break;
         case BIT_3_C_OP:
-            BIT_N_R(PC, C, F, 3);
+            BIT_N_R(registers.PC, registers.C, registers.F, 3);
             break;
         case BIT_3_D_OP:
-            BIT_N_R(PC, D, F, 3);
+            BIT_N_R(registers.PC, registers.D, registers.F, 3);
             break;
         case BIT_3_E_OP:
-            BIT_N_R(PC, E, F, 3);
+            BIT_N_R(registers.PC, registers.E, registers.F, 3);
             break;
         case BIT_3_H_OP:
-            BIT_N_R(PC, H, F, 3);
+            BIT_N_R(registers.PC, registers.H, registers.F, 3);
             break;
         case BIT_3_L_OP:
-            BIT_N_R(PC, L, F, 3);
+            BIT_N_R(registers.PC, registers.L, registers.F, 3);
             break;
         case BIT_3_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 3);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 3);
             break;
         case BIT_3_A_OP:
-            BIT_N_R(PC, A, F, 3);
+            BIT_N_R(registers.PC, registers.A, registers.F, 3);
             break;
         case BIT_4_B_OP:
-            BIT_N_R(PC, B, F, 4);
+            BIT_N_R(registers.PC, registers.B, registers.F, 4);
             break;
         case BIT_4_C_OP:
-            BIT_N_R(PC, C, F, 4);
+            BIT_N_R(registers.PC, registers.C, registers.F, 4);
             break;
         case BIT_4_D_OP:
-            BIT_N_R(PC, D, F, 4);
+            BIT_N_R(registers.PC, registers.D, registers.F, 4);
             break;
         case BIT_4_E_OP:
-            BIT_N_R(PC, E, F, 4);
+            BIT_N_R(registers.PC, registers.E, registers.F, 4);
             break;
         case BIT_4_H_OP:
-            BIT_N_R(PC, H, F, 4);
+            BIT_N_R(registers.PC, registers.H, registers.F, 4);
             break;
         case BIT_4_L_OP:
-            BIT_N_R(PC, L, F, 4);
+            BIT_N_R(registers.PC, registers.L, registers.F, 4);
             break;
         case BIT_4_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 4);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 4);
             break;
         case BIT_4_A_OP:
-            BIT_N_R(PC, A, F, 4);
+            BIT_N_R(registers.PC, registers.A, registers.F, 4);
             break;
         case BIT_5_B_OP:
-            BIT_N_R(PC, B, F, 5);
+            BIT_N_R(registers.PC, registers.B, registers.F, 5);
             break;
         case BIT_5_C_OP:
-            BIT_N_R(PC, C, F, 5);
+            BIT_N_R(registers.PC, registers.C, registers.F, 5);
             break;
         case BIT_5_D_OP:
-            BIT_N_R(PC, D, F, 5);
+            BIT_N_R(registers.PC, registers.D, registers.F, 5);
             break;
         case BIT_5_E_OP:
-            BIT_N_R(PC, E, F, 5);
+            BIT_N_R(registers.PC, registers.E, registers.F, 5);
             break;
         case BIT_5_H_OP:
-            BIT_N_R(PC, H, F, 5);
+            BIT_N_R(registers.PC, registers.H, registers.F, 5);
             break;
         case BIT_5_L_OP:
-            BIT_N_R(PC, L, F, 5);
+            BIT_N_R(registers.PC, registers.L, registers.F, 5);
             break;
         case BIT_5_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 5);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 5);
             break;
         case BIT_5_A_OP:
-            BIT_N_R(PC, A, F, 5);
+            BIT_N_R(registers.PC, registers.A, registers.F, 5);
             break;
         case BIT_6_B_OP:
-            BIT_N_R(PC, B, F, 6);
+            BIT_N_R(registers.PC, registers.B, registers.F, 6);
             break;
         case BIT_6_C_OP:
-            BIT_N_R(PC, C, F, 6);
+            BIT_N_R(registers.PC, registers.C, registers.F, 6);
             break;
         case BIT_6_D_OP:
-            BIT_N_R(PC, D, F, 6);
+            BIT_N_R(registers.PC, registers.D, registers.F, 6);
             break;
         case BIT_6_E_OP:
-            BIT_N_R(PC, E, F, 6);
+            BIT_N_R(registers.PC, registers.E, registers.F, 6);
             break;
         case BIT_6_H_OP:
-            BIT_N_R(PC, H, F, 6);
+            BIT_N_R(registers.PC, registers.H, registers.F, 6);
             break;
         case BIT_6_L_OP:
-            BIT_N_R(PC, L, F, 6);
+            BIT_N_R(registers.PC, registers.L, registers.F, 6);
             break;
         case BIT_6_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 6);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 6);
             break;
         case BIT_6_A_OP:
-            BIT_N_R(PC, A, F, 6);
+            BIT_N_R(registers.PC, registers.A, registers.F, 6);
             break;
         case BIT_7_B_OP:
-            BIT_N_R(PC, B, F, 7);
+            BIT_N_R(registers.PC, registers.B, registers.F, 7);
             break;
         case BIT_7_C_OP:
-            BIT_N_R(PC, C, F, 7);
+            BIT_N_R(registers.PC, registers.C, registers.F, 7);
             break;
         case BIT_7_D_OP:
-            BIT_N_R(PC, D, F, 7);
+            BIT_N_R(registers.PC, registers.D, registers.F, 7);
             break;
         case BIT_7_E_OP:
-            BIT_N_R(PC, E, F, 7);
+            BIT_N_R(registers.PC, registers.E, registers.F, 7);
             break;
         case BIT_7_H_OP:
-            BIT_N_R(PC, H, F, 7);
+            BIT_N_R(registers.PC, registers.H, registers.F, 7);
             break;
         case BIT_7_L_OP:
-            BIT_N_R(PC, L, F, 7);
+            BIT_N_R(registers.PC, registers.L, registers.F, 7);
             break;
         case BIT_7_ADHL_OP:
-            BIT_N_ADHL(PC, RAM, H, L, F, 7);
+            BIT_N_ADHL(registers.PC, RAM, registers.H, registers.L, registers.F, 7);
             break;
         case BIT_7_A_OP:
-            BIT_N_R(PC, A, F, 7);
+            BIT_N_R(registers.PC, registers.A, registers.F, 7);
             break;
         case RES_0_B_OP:
-            RES_N_R(PC, B, 0);
+            RES_N_R(registers.PC, registers.B, 0);
             break;
         case RES_0_C_OP:
-            RES_N_R(PC, C, 0);
+            RES_N_R(registers.PC, registers.C, 0);
             break;
         case RES_0_D_OP:
-            RES_N_R(PC, D, 0);
+            RES_N_R(registers.PC, registers.D, 0);
             break;
         case RES_0_E_OP:
-            RES_N_R(PC, E, 0);
+            RES_N_R(registers.PC, registers.E, 0);
             break;
         case RES_0_H_OP:
-            RES_N_R(PC, H, 0);
+            RES_N_R(registers.PC, registers.H, 0);
             break;
         case RES_0_L_OP:
-            RES_N_R(PC, L, 0);
+            RES_N_R(registers.PC, registers.L, 0);
             break;
         case RES_0_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 0);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 0);
             break;
         case RES_0_A_OP:
-            RES_N_R(PC, A, 0);
+            RES_N_R(registers.PC, registers.A, 0);
             break;
         case RES_1_B_OP:
-            RES_N_R(PC, B, 1);
+            RES_N_R(registers.PC, registers.B, 1);
             break;
         case RES_1_C_OP:
-            RES_N_R(PC, C, 1);
+            RES_N_R(registers.PC, registers.C, 1);
             break;
         case RES_1_D_OP:
-            RES_N_R(PC, D, 1);
+            RES_N_R(registers.PC, registers.D, 1);
             break;
         case RES_1_E_OP:
-            RES_N_R(PC, E, 1);
+            RES_N_R(registers.PC, registers.E, 1);
             break;
         case RES_1_H_OP:
-            RES_N_R(PC, H, 1);
+            RES_N_R(registers.PC, registers.H, 1);
             break;
         case RES_1_L_OP:
-            RES_N_R(PC, L, 1);
+            RES_N_R(registers.PC, registers.L, 1);
             break;
         case RES_1_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 1);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 1);
             break;
         case RES_1_A_OP:
-            RES_N_R(PC, A, 1);
+            RES_N_R(registers.PC, registers.A, 1);
             break;
         case RES_2_B_OP:
-            RES_N_R(PC, B, 2);
+            RES_N_R(registers.PC, registers.B, 2);
             break;
         case RES_2_C_OP:
-            RES_N_R(PC, C, 2);
+            RES_N_R(registers.PC, registers.C, 2);
             break;
         case RES_2_D_OP:
-            RES_N_R(PC, D, 2);
+            RES_N_R(registers.PC, registers.D, 2);
             break;
         case RES_2_E_OP:
-            RES_N_R(PC, E, 2);
+            RES_N_R(registers.PC, registers.E, 2);
             break;
         case RES_2_H_OP:
-            RES_N_R(PC, H, 2);
+            RES_N_R(registers.PC, registers.H, 2);
             break;
         case RES_2_L_OP:
-            RES_N_R(PC, L, 2);
+            RES_N_R(registers.PC, registers.L, 2);
             break;
         case RES_2_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 2);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 2);
             break;
         case RES_2_A_OP:
-            RES_N_R(PC, A, 2);
+            RES_N_R(registers.PC, registers.A, 2);
             break;
         case RES_3_B_OP:
-            RES_N_R(PC, B, 3);
+            RES_N_R(registers.PC, registers.B, 3);
             break;
         case RES_3_C_OP:
-            RES_N_R(PC, C, 3);
+            RES_N_R(registers.PC, registers.C, 3);
             break;
         case RES_3_D_OP:
-            RES_N_R(PC, D, 3);
+            RES_N_R(registers.PC, registers.D, 3);
             break;
         case RES_3_E_OP:
-            RES_N_R(PC, E, 3);
+            RES_N_R(registers.PC, registers.E, 3);
             break;
         case RES_3_H_OP:
-            RES_N_R(PC, H, 3);
+            RES_N_R(registers.PC, registers.H, 3);
             break;
         case RES_3_L_OP:
-            RES_N_R(PC, L, 3);
+            RES_N_R(registers.PC, registers.L, 3);
             break;
         case RES_3_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 3);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 3);
             break;
         case RES_3_A_OP:
-            RES_N_R(PC, A, 3);
+            RES_N_R(registers.PC, registers.A, 3);
             break;
         case RES_4_B_OP:
-            RES_N_R(PC, B, 4);
+            RES_N_R(registers.PC, registers.B, 4);
             break;
         case RES_4_C_OP:
-            RES_N_R(PC, C, 4);
+            RES_N_R(registers.PC, registers.C, 4);
             break;
         case RES_4_D_OP:
-            RES_N_R(PC, D, 4);
+            RES_N_R(registers.PC, registers.D, 4);
             break;
         case RES_4_E_OP:
-            RES_N_R(PC, E, 4);
+            RES_N_R(registers.PC, registers.E, 4);
             break;
         case RES_4_H_OP:
-            RES_N_R(PC, H, 4);
+            RES_N_R(registers.PC, registers.H, 4);
             break;
         case RES_4_L_OP:
-            RES_N_R(PC, L, 4);
+            RES_N_R(registers.PC, registers.L, 4);
             break;
         case RES_4_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 4);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 4);
             break;
         case RES_4_A_OP:
-            RES_N_R(PC, A, 4);
+            RES_N_R(registers.PC, registers.A, 4);
             break;
         case RES_5_B_OP:
-            RES_N_R(PC, B, 5);
+            RES_N_R(registers.PC, registers.B, 5);
             break;
         case RES_5_C_OP:
-            RES_N_R(PC, C, 5);
+            RES_N_R(registers.PC, registers.C, 5);
             break;
         case RES_5_D_OP:
-            RES_N_R(PC, D, 5);
+            RES_N_R(registers.PC, registers.D, 5);
             break;
         case RES_5_E_OP:
-            RES_N_R(PC, E, 5);
+            RES_N_R(registers.PC, registers.E, 5);
             break;
         case RES_5_H_OP:
-            RES_N_R(PC, H, 5);
+            RES_N_R(registers.PC, registers.H, 5);
             break;
         case RES_5_L_OP:
-            RES_N_R(PC, L, 5);
+            RES_N_R(registers.PC, registers.L, 5);
             break;
         case RES_5_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 5);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 5);
             break;
         case RES_5_A_OP:
-            RES_N_R(PC, A, 5);
+            RES_N_R(registers.PC, registers.A, 5);
             break;
         case RES_6_B_OP:
-            RES_N_R(PC, B, 6);
+            RES_N_R(registers.PC, registers.B, 6);
             break;
         case RES_6_C_OP:
-            RES_N_R(PC, C, 6);
+            RES_N_R(registers.PC, registers.C, 6);
             break;
         case RES_6_D_OP:
-            RES_N_R(PC, D, 6);
+            RES_N_R(registers.PC, registers.D, 6);
             break;
         case RES_6_E_OP:
-            RES_N_R(PC, E, 6);
+            RES_N_R(registers.PC, registers.E, 6);
             break;
         case RES_6_H_OP:
-            RES_N_R(PC, H, 6);
+            RES_N_R(registers.PC, registers.H, 6);
             break;
         case RES_6_L_OP:
-            RES_N_R(PC, L, 6);
+            RES_N_R(registers.PC, registers.L, 6);
             break;
         case RES_6_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 6);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 6);
             break;
         case RES_6_A_OP:
-            RES_N_R(PC, A, 6);
+            RES_N_R(registers.PC, registers.A, 6);
             break;
         case RES_7_B_OP:
-            RES_N_R(PC, B, 7);
+            RES_N_R(registers.PC, registers.B, 7);
             break;
         case RES_7_C_OP:
-            RES_N_R(PC, C, 7);
+            RES_N_R(registers.PC, registers.C, 7);
             break;
         case RES_7_D_OP:
-            RES_N_R(PC, D, 7);
+            RES_N_R(registers.PC, registers.D, 7);
             break;
         case RES_7_E_OP:
-            RES_N_R(PC, E, 7);
+            RES_N_R(registers.PC, registers.E, 7);
             break;
         case RES_7_H_OP:
-            RES_N_R(PC, H, 7);
+            RES_N_R(registers.PC, registers.H, 7);
             break;
         case RES_7_L_OP:
-            RES_N_R(PC, L, 7);
+            RES_N_R(registers.PC, registers.L, 7);
             break;
         case RES_7_ADHL_OP:
-            RES_N_ADHL(PC, RAM, H, L, 7);
+            RES_N_ADHL(registers.PC, RAM, registers.H, registers.L, 7);
             break;
         case RES_7_A_OP:
-            RES_N_R(PC, A, 7);
+            RES_N_R(registers.PC, registers.A, 7);
             break;
         case SET_0_B_OP:
-            SET_N_R(PC, B, 0);
+            SET_N_R(registers.PC, registers.B, 0);
             break;
         case SET_0_C_OP:
-            SET_N_R(PC, C, 0);
+            SET_N_R(registers.PC, registers.C, 0);
             break;
         case SET_0_D_OP:
-            SET_N_R(PC, D, 0);
+            SET_N_R(registers.PC, registers.D, 0);
             break;
         case SET_0_E_OP:
-            SET_N_R(PC, E, 0);
+            SET_N_R(registers.PC, registers.E, 0);
             break;
         case SET_0_H_OP:
-            SET_N_R(PC, H, 0);
+            SET_N_R(registers.PC, registers.H, 0);
             break;
         case SET_0_L_OP:
-            SET_N_R(PC, L, 0);
+            SET_N_R(registers.PC, registers.L, 0);
             break;
         case SET_0_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 0);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 0);
             break;
         case SET_0_A_OP:
-            SET_N_R(PC, A, 0);
+            SET_N_R(registers.PC, registers.A, 0);
             break;
         case SET_1_B_OP:
-            SET_N_R(PC, B, 1);
+            SET_N_R(registers.PC, registers.B, 1);
             break;
         case SET_1_C_OP:
-            SET_N_R(PC, C, 1);
+            SET_N_R(registers.PC, registers.C, 1);
             break;
         case SET_1_D_OP:
-            SET_N_R(PC, D, 1);
+            SET_N_R(registers.PC, registers.D, 1);
             break;
         case SET_1_E_OP:
-            SET_N_R(PC, E, 1);
+            SET_N_R(registers.PC, registers.E, 1);
             break;
         case SET_1_H_OP:
-            SET_N_R(PC, H, 1);
+            SET_N_R(registers.PC, registers.H, 1);
             break;
         case SET_1_L_OP:
-            SET_N_R(PC, L, 1);
+            SET_N_R(registers.PC, registers.L, 1);
             break;
         case SET_1_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 1);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 1);
             break;
         case SET_1_A_OP:
-            SET_N_R(PC, A, 1);
+            SET_N_R(registers.PC, registers.A, 1);
             break;
         case SET_2_B_OP:
-            SET_N_R(PC, B, 2);
+            SET_N_R(registers.PC, registers.B, 2);
             break;
         case SET_2_C_OP:
-            SET_N_R(PC, C, 2);
+            SET_N_R(registers.PC, registers.C, 2);
             break;
         case SET_2_D_OP:
-            SET_N_R(PC, D, 2);
+            SET_N_R(registers.PC, registers.D, 2);
             break;
         case SET_2_E_OP:
-            SET_N_R(PC, E, 2);
+            SET_N_R(registers.PC, registers.E, 2);
             break;
         case SET_2_H_OP:
-            SET_N_R(PC, H, 2);
+            SET_N_R(registers.PC, registers.H, 2);
             break;
         case SET_2_L_OP:
-            SET_N_R(PC, L, 2);
+            SET_N_R(registers.PC, registers.L, 2);
             break;
         case SET_2_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 2);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 2);
             break;
         case SET_2_A_OP:
-            SET_N_R(PC, A, 2);
+            SET_N_R(registers.PC, registers.A, 2);
             break;
         case SET_3_B_OP:
-            SET_N_R(PC, B, 3);
+            SET_N_R(registers.PC, registers.B, 3);
             break;
         case SET_3_C_OP:
-            SET_N_R(PC, C, 3);
+            SET_N_R(registers.PC, registers.C, 3);
             break;
         case SET_3_D_OP:
-            SET_N_R(PC, D, 3);
+            SET_N_R(registers.PC, registers.D, 3);
             break;
         case SET_3_E_OP:
-            SET_N_R(PC, E, 3);
+            SET_N_R(registers.PC, registers.E, 3);
             break;
         case SET_3_H_OP:
-            SET_N_R(PC, H, 3);
+            SET_N_R(registers.PC, registers.H, 3);
             break;
         case SET_3_L_OP:
-            SET_N_R(PC, L, 3);
+            SET_N_R(registers.PC, registers.L, 3);
             break;
         case SET_3_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 3);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 3);
             break;
         case SET_3_A_OP:
-            SET_N_R(PC, A, 3);
+            SET_N_R(registers.PC, registers.A, 3);
             break;
         case SET_4_B_OP:
-            SET_N_R(PC, B, 4);
+            SET_N_R(registers.PC, registers.B, 4);
             break;
         case SET_4_C_OP:
-            SET_N_R(PC, C, 4);
+            SET_N_R(registers.PC, registers.C, 4);
             break;
         case SET_4_D_OP:
-            SET_N_R(PC, D, 4);
+            SET_N_R(registers.PC, registers.D, 4);
             break;
         case SET_4_E_OP:
-            SET_N_R(PC, E, 4);
+            SET_N_R(registers.PC, registers.E, 4);
             break;
         case SET_4_H_OP:
-            SET_N_R(PC, H, 4);
+            SET_N_R(registers.PC, registers.H, 4);
             break;
         case SET_4_L_OP:
-            SET_N_R(PC, L, 4);
+            SET_N_R(registers.PC, registers.L, 4);
             break;
         case SET_4_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 4);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 4);
             break;
         case SET_4_A_OP:
-            SET_N_R(PC, A, 4);
+            SET_N_R(registers.PC, registers.A, 4);
             break;
         case SET_5_B_OP:
-            SET_N_R(PC, B, 5);
+            SET_N_R(registers.PC, registers.B, 5);
             break;
         case SET_5_C_OP:
-            SET_N_R(PC, C, 5);
+            SET_N_R(registers.PC, registers.C, 5);
             break;
         case SET_5_D_OP:
-            SET_N_R(PC, D, 5);
+            SET_N_R(registers.PC, registers.D, 5);
             break;
         case SET_5_E_OP:
-            SET_N_R(PC, E, 5);
+            SET_N_R(registers.PC, registers.E, 5);
             break;
         case SET_5_H_OP:
-            SET_N_R(PC, H, 5);
+            SET_N_R(registers.PC, registers.H, 5);
             break;
         case SET_5_L_OP:
-            SET_N_R(PC, L, 5);
+            SET_N_R(registers.PC, registers.L, 5);
             break;
         case SET_5_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 5);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 5);
             break;
         case SET_5_A_OP:
-            SET_N_R(PC, A, 5);
+            SET_N_R(registers.PC, registers.A, 5);
             break;
         case SET_6_B_OP:
-            SET_N_R(PC, B, 6);
+            SET_N_R(registers.PC, registers.B, 6);
             break;
         case SET_6_C_OP:
-            SET_N_R(PC, C, 6);
+            SET_N_R(registers.PC, registers.C, 6);
             break;
         case SET_6_D_OP:
-            SET_N_R(PC, D, 6);
+            SET_N_R(registers.PC, registers.D, 6);
             break;
         case SET_6_E_OP:
-            SET_N_R(PC, E, 6);
+            SET_N_R(registers.PC, registers.E, 6);
             break;
         case SET_6_H_OP:
-            SET_N_R(PC, H, 6);
+            SET_N_R(registers.PC, registers.H, 6);
             break;
         case SET_6_L_OP:
-            SET_N_R(PC, L, 6);
+            SET_N_R(registers.PC, registers.L, 6);
             break;
         case SET_6_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 6);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 6);
             break;
         case SET_6_A_OP:
-            SET_N_R(PC, A, 6);
+            SET_N_R(registers.PC, registers.A, 6);
             break;
         case SET_7_B_OP:
-            SET_N_R(PC, B, 7);
+            SET_N_R(registers.PC, registers.B, 7);
             break;
         case SET_7_C_OP:
-            SET_N_R(PC, C, 7);
+            SET_N_R(registers.PC, registers.C, 7);
             break;
         case SET_7_D_OP:
-            SET_N_R(PC, D, 7);
+            SET_N_R(registers.PC, registers.D, 7);
             break;
         case SET_7_E_OP:
-            SET_N_R(PC, E, 7);
+            SET_N_R(registers.PC, registers.E, 7);
             break;
         case SET_7_H_OP:
-            SET_N_R(PC, H, 7);
+            SET_N_R(registers.PC, registers.H, 7);
             break;
         case SET_7_L_OP:
-            SET_N_R(PC, L, 7);
+            SET_N_R(registers.PC, registers.L, 7);
             break;
         case SET_7_ADHL_OP:
-            SET_N_ADHL(PC, RAM, H, L, 7);
+            SET_N_ADHL(registers.PC, RAM, registers.H, registers.L, 7);
             break;
         case SET_7_A_OP:
-            SET_N_R(PC, A, 7);
+            SET_N_R(registers.PC, registers.A, 7);
             break;
     }
 
