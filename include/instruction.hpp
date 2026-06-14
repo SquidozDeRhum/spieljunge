@@ -70,7 +70,7 @@ void AND_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
 
 void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
-void XOR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F);
+void XOR_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
 
 void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
 void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
@@ -120,7 +120,7 @@ void RET_C(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F);
 void RET_NC(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t F);
 
 void DI(uint16_t& PC, bool& IME);
-void EI(uint16_t& PC, bool& IME);
+void EI(uint16_t& PC, bool& preIME);
 void RETI(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, bool& IME);
 
 void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2);

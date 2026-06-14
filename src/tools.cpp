@@ -1,4 +1,6 @@
+#include <unistd.h>
 #include <cstdint>
+#include <raylib.h>
 
 #include "../include/tools.hpp"
 #include "../include/const.hpp"
@@ -8,6 +10,8 @@
 
 #include "../include/instruction.hpp"
 #include "../include/prefixed.hpp"
+
+#include "../include/rendering.hpp"
 
 void loadBoot(std::vector<u_int8_t>& RAM, std::string filename) {
     char value;
@@ -84,10 +88,122 @@ std::string R8_to_str(uint16_t R) {
     return result;
 }
 
+void CALL_Vector(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint16_t vector) {
+    uint16_t returnAddress = PC;
+    SP--;
+    RAM[SP] = returnAddress >> 8;
+    SP--;
+    RAM[SP] = returnAddress & 0xFF;
+
+    PC = vector;
+}
+
+void DMACopy(std::vector<uint8_t>& RAM) {
+    for (int i = 0; i < 160; i++) {
+        RAM[OAM_START + i] = RAM[(RAM[DMA] << 8) + i];
+    }
+}
+
+void writeRAM(uint16_t address, uint8_t value, std::vector<uint8_t>& RAM) {
+    if (address == JOYP) {{}
+        if (value >= 0x30) {
+            RAM[address] = value | 0x0F;
+        } else if (value == 0x20) {
+            uint8_t dpad = 0x0F;
+
+            if (IsKeyDown(KEY_UP)) {
+                dpad &= ~0x04;
+            } else if (IsKeyUp(KEY_UP)) {
+                dpad |= 0x04;
+            }
+
+            if (IsKeyDown(KEY_DOWN)) {
+                dpad &= ~0x08;
+            } else if (IsKeyUp(KEY_DOWN)){
+                dpad |= 0x08;
+            }
+            
+            if (IsKeyDown(KEY_LEFT)) {
+                dpad &= ~0x02;
+            } else if (IsKeyUp(KEY_LEFT)) {
+                dpad |= 0x02;
+            }
+
+            if (IsKeyDown(KEY_RIGHT)) {
+                dpad &= ~0x01;
+            } else if (IsKeyUp(KEY_RIGHT)) {
+                dpad |= 0x01;
+            }
+
+            RAM[address] = (value & 0xF0) | dpad;
+        } else {
+            RAM[address] = 0x2F;
+        }
+    } else {
+        RAM[address] = value;
+    }
+    
+    if (address == DMA) {
+        DMACopy(RAM);
+    }
+}
+
+void doCPUStuff(Registers& registers, std::vector<uint8_t>& RAM, Image& screen) {
+    ECI(registers, RAM);
+            
+    if ((RAM[LCDC] & 0x80) == 0x80) {
+        if (registers.cycles_counter >= 114) {
+            draw_line(RAM, screen);
+            RAM[LY] += 1;
+            registers.cycles_counter -= 114;
+        }
+    } else {
+        RAM[LY] = 0;
+        registers.cycles_counter = 0;
+    }
+
+    if (RAM[LY] == 144 && !registers.VBLANKTriggered) {
+        RAM[IF] |= VBLANK;
+        registers.VBLANKTriggered = true;
+    }
+
+    if (RAM[LY] != 144) {
+        registers.VBLANKTriggered = false;
+    }
+
+    if ((RAM[IF] & VBLANK) != 0) {
+        if (registers.IME && (RAM[IE] & VBLANK) != 0) {
+            registers.IME = false;
+            RAM[IF] &= ~VBLANK;
+            registers.cycles_counter += 2;
+            CALL_Vector(registers.PC, RAM, registers.SP, VBLANK_VECTOR);
+        }
+    }
+
+    if ((RAM[IF] & JOYPAD) != 0) {
+        if (registers.IME && (RAM[IE] & JOYPAD) != 0) {
+            registers.IME = false;
+            RAM[IF] &= ~JOYPAD;
+            registers.cycles_counter += 2;
+            CALL_Vector(registers.PC, RAM, registers.SP, JOYPAD_VECTOR);
+        }
+    }
+
+    if (RAM[LY] == 154) {
+        RAM[LY] = 0;
+        registers.cycles_counter++;
+    }
+}
+
 void ECI(Registers& registers, std::vector<uint8_t>& RAM) {
     int complement = 0;
 
     registers.cycles_counter += instructions_cycles[RAM[registers.PC]];
+
+    if (registers.preIME) {
+        registers.IME = true;
+        registers.preIME = false;
+    }
 
     switch (RAM[registers.PC]) {
         case NOP_OP:
@@ -866,7 +982,7 @@ void ECI(Registers& registers, std::vector<uint8_t>& RAM) {
             LD_A_AD16(registers.PC, registers.A, RAM);
             break;
         case EI_OP:
-            EI(registers.PC, registers.IME);
+            EI(registers.PC, registers.preIME);
             break;
         case CP_A_8_OP:
             CP_A_8(registers.PC, registers.A, RAM, registers.F);

@@ -34,10 +34,7 @@ int main() {
     InitWindow(680, 432, "Spieljunge");
     SetTargetFPS(60);
 
-    int breakpoint = 0x0; // 0xF7
-    // Regarder ce qu'il se passe après 2CA et 
-    // voir si le compteur de M-Cycles s'incrémente quand
-    // LCDC.7 == 0
+    int breakpoint = 0x00; // 0xF7
     bool breakpoint_reached = false;
 
     Image screen = GenImageColor(480, 432, BLACK);
@@ -64,22 +61,10 @@ int main() {
             bool zero_passed = false;
             
             while (RAM[LY] != 144 || !loop_done) {
-                // std::cout << std::hex << "PC : " << +PC << " Instruction : " << +RAM[PC] << std::endl;
-                ECI(registers, RAM);
+
+                doCPUStuff(registers, RAM, screen);
                 
-                if ((RAM[LCDC] & 0x80) == 0x80) {
-                    if (registers.cycles_counter >= 114) {
-                        draw_line(RAM, screen);
-                        RAM[LY] += 1;
-                        registers.cycles_counter -= 114;
-                    }
-                } else {
-                    RAM[LY] = 0;
-                    registers.cycles_counter = 0;
-                }
-                
-                if (RAM[LY] == 154) {
-                    RAM[LY] = 0;
+                if (RAM[LY] == 0) {
                     zero_passed = true;
                 }
                 
@@ -89,23 +74,7 @@ int main() {
             }
             
         } else if (IsKeyDown(KEY_SPACE) || IsKeyPressed(KEY_I) || !breakpoint_reached) {
-            if (registers.PC > 0x27C3 && registers.PC < 0x27D4) displayMemorySection(RAM, VRAM_START, 0x803F);
-            ECI(registers, RAM);
-            
-            if ((RAM[LCDC] & 0x80) == 0x80) {
-                if (registers.cycles_counter >= 114) {
-                    draw_line(RAM, screen);
-                    RAM[LY] += 1;
-                        registers.cycles_counter -= 114;
-                    }
-                } else {
-                    RAM[LY] = 0;
-                    registers.cycles_counter = 0;
-                }
-
-                if (RAM[LY] == 154) {
-                    RAM[LY] = 0;
-                }
+            doCPUStuff(registers, RAM, screen);
         }
         
         if (breakpoint_reached) {
@@ -130,7 +99,6 @@ int main() {
         
             EndDrawing();
         }
-
     }
 
     CloseWindow();

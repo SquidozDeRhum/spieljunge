@@ -53,7 +53,7 @@ void LD_R16_16(uint16_t& PC, uint8_t& R1, uint8_t& R2, std::vector<uint8_t>& RAM
 
 void LD_ADR16_R(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t R11, uint8_t R12, uint8_t R2) {
     uint16_t AD16 = (R11 << 8) | R12;
-    RAM[AD16] = R2;
+    writeRAM(AD16, R2, RAM);
 
     PC++;
 }
@@ -64,9 +64,9 @@ void LD_AD16_SP(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t SP) {
     PC++;
     AD16 |= (RAM[PC] << 8);
 
-    RAM[AD16] = (SP & 0xFF);
+    writeRAM(AD16, (SP & 0xFF), RAM);
     AD16++;
-    RAM[AD16] = (SP >> 8);
+    writeRAM(AD16, (SP >> 8), RAM);
 
     PC++;
 }
@@ -90,14 +90,14 @@ void LD_AD16_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t A) {
     PC++;
     AD16 |= (RAM[PC] << 8);
 
-    RAM[AD16] = A;
+    writeRAM(AD16, A, RAM);
 
     PC++;
 }
 
 void LD_ADHL_I_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A) {
     uint16_t ADHL = (H << 8) | L;
-    RAM[ADHL] = A;
+    writeRAM(ADHL, A, RAM);
 
     ADHL++;
     H = (ADHL >> 8);
@@ -108,7 +108,7 @@ void LD_ADHL_I_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L
 
 void LD_ADHL_D_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L, uint8_t A) {
     uint16_t ADHL = (H << 8) | L;
-    RAM[ADHL] = A;
+    writeRAM(ADHL, A, RAM);
 
     ADHL--;
     H = (ADHL >> 8);
@@ -142,7 +142,7 @@ void LD_A_ADHL_D(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t& H, uint8_t& L
 void LD_ADHL_R8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t R) {
     uint16_t HL = (H << 8) | L;
 
-    RAM[HL] = R;
+    writeRAM(HL, R, RAM);
 
     PC++;
 }
@@ -150,7 +150,7 @@ void LD_ADHL_R8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, u
 void LD_ADHL_8(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L) {
     PC++;
     uint16_t HL = (H << 8) | L;
-    RAM[HL] = RAM[PC];
+    writeRAM(HL, RAM[PC], RAM);
 
     PC++;
 }
@@ -195,20 +195,20 @@ void LD_A_AD16(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM) {
 
 void LDH_AD8_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t A) {
     PC++;
-    uint8_t address = RAM[PC];
-    uint8_t values = RAM[0xFF00 | address] & 0x0F;
+    uint16_t address = 0xFF00 | RAM[PC];
+    uint8_t values = RAM[address] & 0x0F;
 
-    RAM[0xFF00 | address] = A;
+    writeRAM(address, A, RAM);
 
     if (address == 0) {
-        RAM[0xFF00 | address] |= values;
+        RAM[address] |= values;
     }
 
     PC++;
 }
 
 void LDH_ADC_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t C, uint8_t A) {
-    RAM[0xFF00 | C] = A;
+    writeRAM((0xFF00 | C), A, RAM);
 
     PC++;
 }
@@ -795,7 +795,7 @@ void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
     PC++;
 }
 
-void XOR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
+void XOR_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
     F &= NO_FLAG; // unset flags
 
     PC++;
@@ -1191,8 +1191,8 @@ void DI(uint16_t& PC, bool& IME) {
     PC++;
 }
 
-void EI(uint16_t& PC, bool& IME) {
-    IME = true;
+void EI(uint16_t& PC, bool& preIME) {
+    preIME = true;
     PC++;
 }
 

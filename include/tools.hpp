@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <raylib.h>
 
 #include "./types.hpp"
 
@@ -15,6 +16,12 @@ void flagsOutput(uint8_t F);
 
 std::string R16_to_str(uint16_t R);
 std::string R8_to_str(uint16_t R);
+
+void CALL_Vector(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint16_t vector);
+void doCPUStuff(Registers& registers, std::vector<uint8_t>& RAM, Image& screen);
+
+void DMACopy(std::vector<uint8_t>& RAM);
+void writeRAM(uint16_t address, uint8_t value, std::vector<uint8_t>& RAM);
 
 // execute current instruction
 void ECI(Registers& registers, std::vector<uint8_t>& RAM);

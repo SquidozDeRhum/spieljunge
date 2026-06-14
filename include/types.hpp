@@ -15,7 +15,15 @@ struct Registers {
     uint16_t SP = SP_START;
     uint16_t PC = 0x0000;
 
+    bool preIME = false;
     bool IME = false;
+    bool VBLANKTriggered = false;
 
     int cycles_counter = 0;
+};
+
+struct Object {
+    uint8_t x;
+    uint8_t AF;
+    uint16_t tileLine;
 };
