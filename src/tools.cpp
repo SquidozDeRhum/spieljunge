@@ -137,7 +137,33 @@ void writeRAM(uint16_t address, uint8_t value, std::vector<uint8_t>& RAM) {
 
             RAM[address] = (value & 0xF0) | dpad;
         } else {
-            RAM[address] = 0x2F;
+            uint8_t buttons = 0x0F;
+
+            if (IsKeyDown(KEY_E)) {
+                buttons &= ~0x04;
+            } else if (IsKeyUp(KEY_E)) {
+                buttons |= 0x04;
+            }
+
+            if (IsKeyDown(KEY_R)) {
+                buttons &= ~0x08;
+            } else if (IsKeyUp(KEY_R)){
+                buttons |= 0x08;
+            }
+            
+            if (IsKeyDown(KEY_Z)) {
+                buttons &= ~0x02;
+            } else if (IsKeyUp(KEY_Z)) {
+                buttons |= 0x02;
+            }
+
+            if (IsKeyDown(KEY_A)) {
+                buttons &= ~0x01;
+            } else if (IsKeyUp(KEY_A)) {
+                buttons |= 0x01;
+            }
+
+            RAM[address] = (value & 0xF0) | buttons;
         }
     } else {
         RAM[address] = value;
