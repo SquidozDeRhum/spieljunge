@@ -344,7 +344,7 @@ void DEC_SP(uint16_t& PC, uint16_t& SP) {
     PC++;
 }
 
-void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
     F &= NO_FLAG; // unset flags
 
     // half-carry check
@@ -475,7 +475,7 @@ void ADD_HL_SP(uint16_t& PC, uint8_t& H, uint8_t& L, uint16_t SP, uint8_t& F) {
     PC++;
 }
 
-void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
     F &= NO_FLAG; // unset flags
     int carry = 0;
 
@@ -563,7 +563,7 @@ void ADC_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
     F = NEGATIVE_FLAG; // set negative flag
 
     // half-carry check
@@ -635,7 +635,7 @@ void SUB_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
     F = NEGATIVE_FLAG; // set negative flag
 
     int carry = 0;
@@ -726,7 +726,7 @@ void SBC_A_8(uint16_t& PC, uint8_t&A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
     F = HALF_CARRY_FLAG; // set half-carry flag
 
     R1 &= R2;
@@ -767,7 +767,7 @@ void AND_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
     F &= NO_FLAG; // unset flags
     
     R1 ^= R2;
@@ -811,7 +811,7 @@ void XOR_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
     F &= NO_FLAG; // unset flags
 
     R1 |= R2;
@@ -839,7 +839,7 @@ void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, 
     PC++;
 }
 
-void OR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
+void OR_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
     F &= NO_FLAG; // unset flags
 
     PC++;
@@ -855,7 +855,7 @@ void OR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F) {
     PC++;
 }
 
-void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
+void CP_R_R(uint16_t& PC, uint8_t R1, uint8_t R2, uint8_t& F) {
     F = NEGATIVE_FLAG; // set negative flag
 
     // half-carry check
@@ -876,7 +876,7 @@ void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F) {
     PC++;
 }
 
-void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
+void CP_R_ADHL(uint16_t& PC, uint8_t R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
     F = NEGATIVE_FLAG; // set negative flag
 
     uint16_t HL = (H << 8) | L;
@@ -1026,7 +1026,7 @@ void JR_8(uint16_t& PC, std::vector<uint8_t>& RAM) {
     PC += (signed char)value;
 }
 
-void JR_Z_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
+void JR_Z_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM) {
     PC++;
     uint8_t value = RAM[PC];
 
@@ -1037,7 +1037,7 @@ void JR_Z_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
     }
 }
 
-void JR_NZ_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
+void JR_NZ_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM) {
     PC++;
     uint8_t value = RAM[PC];
 
@@ -1048,7 +1048,7 @@ void JR_NZ_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
     }
 }
 
-void JR_C_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
+void JR_C_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM) {
     PC++;
     uint8_t value = RAM[PC];
 
@@ -1059,7 +1059,7 @@ void JR_C_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
     }
 }
 
-void JR_NC_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM) {
+void JR_NC_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM) {
     PC++;
     uint8_t value = RAM[PC];
 
@@ -1201,7 +1201,7 @@ void RETI(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, bool& IME) {
     RET(PC, RAM, SP);
 }
 
-void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2) {
+void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t R1, uint8_t R2) {
     SP--;
     RAM[SP] = R1;
     

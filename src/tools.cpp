@@ -175,6 +175,10 @@ void writeRAM(uint16_t address, uint8_t value, std::vector<uint8_t>& RAM) {
 }
 
 void doCPUStuff(Registers& registers, std::vector<uint8_t>& RAM, Image& screen) {
+    if (registers.PC == 0x2682) {
+        displayMemorySection(RAM, 0xC000, 0xC1FF);
+    }
+
     ECI(registers, RAM);
             
     if ((RAM[LCDC] & 0x80) == 0x80) {

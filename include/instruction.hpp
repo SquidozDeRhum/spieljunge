@@ -43,7 +43,7 @@ void DEC_R16(uint16_t& PC, uint8_t& R1, uint8_t& R2);
 void DEC_ADHL(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 void DEC_SP(uint16_t& PC, uint16_t& SP);
 
-void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void ADD_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t R22, uint8_t& F);
 void ADD_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
@@ -51,33 +51,33 @@ void ADD_SP_8(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM);
 void ADD_HL_SP(uint16_t& PC, uint8_t& H, uint8_t& L, uint16_t SP, uint8_t& F);
 
 // stands for ADD with carry
-void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void ADC_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 void ADC_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
 
-void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void SUB_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void SUB_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 void SUB_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
 
 // stands for SUB with carry
-void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 void SBC_A_8(uint16_t& PC, uint8_t&A, std::vector<uint8_t>& RAM, uint8_t& F);
 
-void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void AND_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void AND_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 void AND_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
 
-void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void XOR_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void XOR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 void XOR_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
 
-void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
+void OR_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void OR_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
-void OR_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F);
+void OR_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
 
-void CP_R_R(uint16_t& PC, uint8_t& R1, uint8_t& R2, uint8_t& F);
-void CP_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
+void CP_R_R(uint16_t& PC, uint8_t R1, uint8_t R2, uint8_t& F);
+void CP_R_ADHL(uint16_t& PC, uint8_t R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L,uint8_t& F);
 void CP_A_8(uint16_t& PC, uint8_t A, std::vector<uint8_t>& RAM, uint8_t& F);
 
 void RLCA(uint16_t& PC, uint8_t& A, uint8_t& F);
@@ -91,10 +91,10 @@ void SCF(uint16_t& PC, uint8_t& F); // Stands for Set Carry Flag
 void CCF(uint16_t& PC, uint8_t& F); // Stands for Complement Carry Flag, it flips the carry flag
 
 void JR_8(uint16_t& PC, std::vector<uint8_t>& RAM);
-void JR_Z_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
-void JR_NZ_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
-void JR_C_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
-void JR_NC_8(uint16_t& PC, uint8_t& F, std::vector<uint8_t>& RAM);
+void JR_Z_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM);
+void JR_NZ_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM);
+void JR_C_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM);
+void JR_NC_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM);
 
 void JP_16(uint16_t& PC, std::vector<uint8_t>& RAM);
 void JP_Z_16(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t F);
@@ -124,6 +124,6 @@ void EI(uint16_t& PC, bool& preIME);
 void RETI(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, bool& IME);
 
 void POP_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2);
-void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t& R1, uint8_t& R2);
+void PUSH_R16(uint16_t& PC, std::vector<uint8_t>& RAM, uint16_t& SP, uint8_t R1, uint8_t R2);
 
 void PREFIX(uint16_t& PC);
