@@ -95,11 +95,11 @@ void RL_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
         R |= 0b00000001;
     }
 
+    F = NO_FLAG;
+
     if (R == 0) {
         F |= ZERO_FLAG;
     }
-
-    F = NO_FLAG;
 
     if ((oldR & 0b10000000) != 0) {
         F |= CARRY_FLAG;
@@ -118,11 +118,11 @@ void RL_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
         RAM[HL] |= 0b00000001;
     }
 
+    F = NO_FLAG;
+
     if (RAM[HL] == 0) {
         F |= ZERO_FLAG;
     }
-
-    F = NO_FLAG;
 
     if ((oldValue & 0b10000000)) {
         F |= CARRY_FLAG;
@@ -140,11 +140,11 @@ void RR_R(uint16_t& PC, uint8_t& R, uint8_t& F) {
         R |= 0b10000000;
     }
 
+    F = NO_FLAG;
+
     if (R == 0) {
         F |= ZERO_FLAG;
     }
-
-    F = NO_FLAG;
 
     if ((oldR & 0b00000001) != 0) {
         F |= CARRY_FLAG;
@@ -163,11 +163,11 @@ void RR_ADHL(u_int16_t& PC, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uin
         RAM[HL] |= 0b10000000;
     }
 
+    F = NO_FLAG;
+
     if (RAM[HL] == 0) {
         F |= ZERO_FLAG;
     }
-
-    F = NO_FLAG;
 
     if ((oldValue & 0b00000001)) {
         F |= CARRY_FLAG;

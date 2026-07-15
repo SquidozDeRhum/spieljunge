@@ -175,10 +175,6 @@ void writeRAM(uint16_t address, uint8_t value, std::vector<uint8_t>& RAM) {
 }
 
 void doCPUStuff(Registers& registers, std::vector<uint8_t>& RAM, Image& screen) {
-    if (registers.PC == 0x2682) {
-        displayMemorySection(RAM, 0xC000, 0xC1FF);
-    }
-
     ECI(registers, RAM);
             
     if ((RAM[LCDC] & 0x80) == 0x80) {
@@ -234,6 +230,8 @@ void ECI(Registers& registers, std::vector<uint8_t>& RAM) {
         registers.IME = true;
         registers.preIME = false;
     }
+
+    std::cout << "LCDC : " << std::hex << +RAM[LCDC] << "\n";
 
     switch (RAM[registers.PC]) {
         case NOP_OP:
@@ -633,7 +631,7 @@ void ECI(Registers& registers, std::vector<uint8_t>& RAM) {
             LD_R8_R8(registers.PC, registers.A, registers.A);
             break;
         case ADD_A_B_OP:
-            ADD_A_8(registers.PC, registers.A, RAM, registers.F);
+            ADD_R_R(registers.PC, registers.A, registers.B, registers.F);
             break;
         case ADD_A_C_OP:
             ADD_R_R(registers.PC, registers.A, registers.C, registers.F);
@@ -967,7 +965,7 @@ void ECI(Registers& registers, std::vector<uint8_t>& RAM) {
             RST_AD(registers.PC, RAM, registers.SP, 0x20);
             break;
         case ADD_SP_8_OP:
-            ADD_SP_8(registers.PC, registers.SP, RAM);
+            ADD_SP_8(registers.PC, registers.SP, RAM, registers.F);
             break;
         case JP_HL_OP:
             JP_HL(registers.PC, registers.H, registers.L);

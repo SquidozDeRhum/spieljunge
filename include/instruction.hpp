@@ -47,7 +47,7 @@ void ADD_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F);
 void ADD_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F);
 void ADD_R16_R16(uint16_t& PC, uint8_t& R11, uint8_t& R12, uint8_t R21, uint8_t R22, uint8_t& F);
 void ADD_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F);
-void ADD_SP_8(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM);
+void ADD_SP_8(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM, uint8_t& F);
 void ADD_HL_SP(uint16_t& PC, uint8_t& H, uint8_t& L, uint16_t SP, uint8_t& F);
 
 // stands for ADD with carry
