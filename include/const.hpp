@@ -68,7 +68,7 @@
 
 #define NB_DAA_CHECK 2
 
-#define SCREEN_X_START 200
+#define SCREEN_X_START 0
 
 #define FIRST_COLOR 0x00
 #define SECOND_COLOR 0x01

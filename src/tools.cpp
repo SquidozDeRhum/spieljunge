@@ -231,8 +231,6 @@ void ECI(Registers& registers, std::vector<uint8_t>& RAM) {
         registers.preIME = false;
     }
 
-    std::cout << "LCDC : " << std::hex << +RAM[LCDC] << "\n";
-
     switch (RAM[registers.PC]) {
         case NOP_OP:
             NOP(registers.PC);

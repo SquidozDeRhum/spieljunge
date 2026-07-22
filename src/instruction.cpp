@@ -20,6 +20,7 @@ void STOP_8(uint16_t& PC) {
 
 void HALT(uint16_t& PC) {
     std::cout << "CPU should stop" << std::endl;
+    PC++;
 }
 
 void LD_R8_8(uint16_t& PC, uint8_t& R, std::vector<uint8_t>& RAM) {
@@ -196,7 +197,6 @@ void LD_A_AD16(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM) {
 void LDH_AD8_A(uint16_t& PC, std::vector<uint8_t>& RAM, uint8_t A) {
     PC++;
     uint16_t address = 0xFF00 | RAM[PC];
-    uint8_t values = RAM[address] & 0x0F;
 
     writeRAM(address, A, RAM);
 
@@ -440,11 +440,11 @@ void ADD_SP_8(uint16_t& PC, uint16_t& SP, std::vector<uint8_t>& RAM, uint8_t& F)
     PC++;
     int8_t value = RAM[PC];
 
-    if (SP + value > 0xF) {
+    if ((SP & 0xF) + ((uint8_t)value & 0xF) > 0xF) {
         F |= HALF_CARRY_FLAG;
     }
 
-    if (SP + value > 0xFF) {
+    if ((SP & 0xFF) + ((uint8_t)value & 0xFF) > 0xFF) {
         F |= CARRY_FLAG;
     }
 
@@ -527,7 +527,7 @@ void ADC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
         F |= CARRY_FLAG;
     }
 
-    R1 += RAM[HL];
+    R1 += RAM[HL] + carry;
 
     // zero check
     if (R1 == 0) {
@@ -558,7 +558,7 @@ void ADC_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
         F |= CARRY_FLAG;
     }
 
-    A += RAM[PC];
+    A += RAM[PC] + carry;
 
     // zero check
     if (A == 0) {
@@ -641,7 +641,7 @@ void SUB_A_8(uint16_t& PC, uint8_t& A, std::vector<uint8_t>& RAM, uint8_t& F) {
 }
 
 void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
+    F = NEGATIVE_FLAG; // set negative flag
 
     int carry = 0;
 
@@ -670,7 +670,7 @@ void SBC_R_R(uint16_t& PC, uint8_t& R1, uint8_t R2, uint8_t& F) {
 }
 
 void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H, uint8_t L, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative fla
+    F = NEGATIVE_FLAG; // set negative flag
 
     int carry = 0;
 
@@ -701,7 +701,7 @@ void SBC_R_ADHL(uint16_t& PC, uint8_t& R1, std::vector<uint8_t>& RAM, uint8_t H,
 }
 
 void SBC_A_8(uint16_t& PC, uint8_t&A, std::vector<uint8_t>& RAM, uint8_t& F) {
-    F |= NEGATIVE_FLAG; // set negative flag
+    F = NEGATIVE_FLAG; // set negative flag
 
     int carry = 0;
 
@@ -1076,50 +1076,41 @@ void JR_NC_8(uint16_t& PC, uint8_t F, std::vector<uint8_t>& RAM) {
 }
 
 void DAA(uint16_t& PC, uint8_t& A, uint8_t& F) {
-    int8_t MSBadjust = 0x60;
-    int8_t LSBadjust = 0x06;
-    
-    uint8_t oldA = A;
-    
-    bool setCarry = false;
+    // read H and C before clearing them
+    bool negative = (F & NEGATIVE_FLAG) != 0;
+    bool halfCarry = (F & HALF_CARRY_FLAG) != 0;
+    bool carry = (F & CARRY_FLAG) != 0;
 
-    if ((F & NEGATIVE_FLAG) != 0) {
-        MSBadjust = -MSBadjust;
-        LSBadjust = -LSBadjust;
-    }
-    
-    if ((F & CARRY_FLAG) != 0) {
-        A += MSBadjust;
-        setCarry = true;
-    }
-
-    // unset flags except negative
-    F &= ~(ZERO_FLAG | HALF_CARRY_FLAG | CARRY_FLAG);
-    
-    if ((F & HALF_CARRY_FLAG) != 0) {
-        A += LSBadjust;
-    }
-    
-    for (int i = 0; i < NB_DAA_CHECK; i++) {
-        if ((A & 0xF) > 0x9) {
-            A += LSBadjust;
+    if (!negative) {
+        // after an addition, adjust if half-carry/carry occurred or if out of BCD range
+        if (carry || A > 0x99) {
+            A += 0x60;
+            carry = true;
         }
-        
-        if ((A & 0xF0) > 0x90) {
-            A += MSBadjust;
+        if (halfCarry || (A & 0x0F) > 0x09) {
+            A += 0x06;
         }
-    }
-    
-    if (A < oldA || setCarry) {
-        F |= CARRY_FLAG;
     } else {
-        F &= ~CARRY_FLAG;
+        // after a subtraction, only adjust
+        if (carry) {
+            A -= 0x60;
+        }
+        if (halfCarry) {
+            A -= 0x06;
+        }
     }
-    
+
+    // half-carry is always cleared, negative is preserved
+    F &= ~(ZERO_FLAG | HALF_CARRY_FLAG | CARRY_FLAG);
+
+    if (carry) {
+        F |= CARRY_FLAG;
+    }
+
     if (A == 0) {
         F |= ZERO_FLAG;
     }
-    
+
     PC++;
 }
 
